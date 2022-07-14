@@ -1819,8 +1819,169 @@ print(f"Is timer a daemon thread : {timer.isDaemon()}")  # Checks to see if a th
 print("\n:Concurrent Futures Module:")
 # Concurrent.futures is a high level interface for asynchronously running tasks; it essentially simplifies threading
 # and makes it less syntax heavy while also adding additional functionality.
-import concurrent.futures
+import concurrent.futures as cf
 
-#---[EXECUTOR BASICS]---
+# ---[EXECUTOR BASICS]---
 
-#There are 2 executors in concurrent.futues; ThreadPoolExecutors ()
+# There are 2 executors in concurrent.futues; ThreadPoolExecutors and ProcessPoolExecutors. Both stem from the executor
+# class and share common methods that stem from said class.
+# executor.submit() schedules the callable, fn, to be executed as fn(*args, **kwargs) and returns a Future object
+# representing the execution of the callable; this Future object's result can be used with {future object}.result()
+# Ignore the ThreadPoolExecutor; ProcessPoolExecutor would function the same way b/c both are Executors
+# max_workers is the max amount of processes in the executor at once. If max_workers is None or not given, it will
+# default to the number of cores on the machine, multiplied by 5.
+
+with cf.ThreadPoolExecutor(max_workers=1) as executor:  # context managers are used to work with Executors, max_workers
+    # is the maximum amount of threads/processes
+    future = executor.submit(pow, 3, 2)  # callable comes first, the args and kwargs
+    print(future.result())
+
+
+def wait(sleep_time):
+    print(f"Waiting for {sleep_time} seconds...")
+    time.sleep(sleep_time)
+    return "Done sleeping."
+
+
+with cf.ThreadPoolExecutor() as executor:  # note that max_workers is not always necessary
+    results = [executor.submit(wait, 1) for _ in range(3)]  # list comprehensions can be used, similarly to threading,
+    # to schedule multiple of the same function (wait is the function, 1 is the arg)
+    for result in cf.as_completed(results):  # as_completed is self explanitory; returns future object as completed
+        print(result.result())
+
+# Map can be used to apply a function to an iterable; the format is map(func, *iterables, timeout=None, chunksize=1)
+# Map returns the results, not a future object.
+# If 1 chunk of the function takes longer than {timeout} seconds a TimeoutError appears.
+# Chunksize is how many elements of the iterable are stored in 1 process; with ThreadPoolExecutor, larger chunksizes
+# will greatly improve performance w/ larger iterables (with ThreadPoolExecutor, chunksize has no effect)
+
+with cf.ThreadPoolExecutor() as map_executor:
+    nums = [1, 2, 3, 4]
+    results = map_executor.map(lambda num: num * 2, nums)  # returns individual values, not an iterable
+    print([result for result in results])
+
+# Shutdown() forces the executor to finish all pending futures and stop accepting submit() calls thereafter
+
+with cf.ThreadPoolExecutor() as executor:
+    future1 = executor.submit(wait, 1)
+    executor.shutdown()
+    try:
+        print("Attempting to submit to executor post-shutdown...")
+        future2 = executor.submit(wait, 1)
+    except RuntimeError:
+        print("Could not submit to executor after shutdown.")
+
+# ---[FUTURES OBJECTS]---
+
+with cf.ThreadPoolExecutor() as executor:
+    num = executor.submit(lambda x: x + 69, 420)  # random example function
+    print(num.cancel)  # attempts (note: **attempts**) to cancel the future. printing it returns True or False based on
+    # whether the future was able to be cancelled
+    print(num.cancelled())  # self explanitory; whether or not a future was cancelled
+    wait_ = executor.submit(wait, 1)
+    print(wait_.running())  # prints whether or not a future is running
+    time.sleep(1.1)
+    print(wait_.done())  # prints whether or not a future is finished
+
+# ---[THREADPOOLEXECUTOR]---
+
+# The ThreadPoolExecutor is similar to threading (in that you need a callable) but is different in that each thread
+# you submit to the pool starts automatically and the pool must finish all threads before continuing. This has already
+# been showcased, but here is an example in which the program must connect to the web, a situation in which the
+# program must wait for the site to respond and can therefore use threading to call the next request while the
+# first request is still pending.
+
+import urllib.request as url_req
+
+URLS = ['http://www.foxnews.com/', 'http://www.cnn.com/', 'http://europe.wsj.com/', 'http://www.bbc.co.uk/',
+        'exception_example.com']  # Notice that the last link is not valid, and europe.wsj is forbidden
+
+
+def load_url(url, timeout):  # Retrieve a single page and report the URL and contents
+    with url_req.urlopen(url, timeout=timeout) as page:  # Opens the url, sets a timeout in case it doesn't work
+        return page.read()
+
+
+with cf.ThreadPoolExecutor(max_workers=5) as executor:
+    future_to_url = {executor.submit(load_url, url, 60): url for url in URLS}  # mark each URL by future in a dictionary
+    for future in cf.as_completed(future_to_url):  # loop over each link as the future is completed
+        url = future_to_url[future]
+        try:
+            data = future.result()  # try to assign data (wont work if there is none)
+        except Exception as exc:
+            print('%r generated an exception: %s' % (url, exc))  # if not possible print exception message
+        else:
+            print('%r page is %d bytes' % (url, len(data)))  # if it worked print the url and length
+
+
+# Deadlocks are situations in which multiple functions are waiting on output from one another, leading to neither
+# function finishing execution
+
+def wait_on_b():
+    time.sleep(0.5)  # give time for the other function to run
+    print(b.result())
+    return 42069  # throwaway return value
+
+
+def wait_on_a():
+    time.sleep(0.5)
+    print(a.result())
+    return 42069
+
+
+if 42069 == 69420:  # Not running this for obvious reasons
+    executor = cf.ThreadPoolExecutor(max_workers=2)
+    a = executor.submit(wait_on_b)
+    b = executor.submit(wait_on_a)
+
+
+# This is also possible if a function uses it's own result and there is only 1 worker thread
+
+def wait_on_future():
+    f = executor.submit(pow, 5, 2)
+    print(f.result())
+
+
+if 69420 == 42069:
+    executor = cf.ThreadPoolExecutor(max_workers=1)
+    executor.submit(wait_on_future)
+
+# ---[PROCESS POOL EXECUTOR]---
+
+# The ProcessPoolExecutor class is an Executor subclass that uses a pool of processes to execute calls asynchronously.
+# ProcessPoolExecutor uses the multiprocessing module, which allows it to side-step the Global Interpreter Lock but also
+# means that only picklable objects can be executed/returned (most notably no lambda functions).
+# Calling Executor or Future methods from a callable submitted to a ProcessPoolExecutor will result in deadlock.
+# Format: ProcessPoolExecutor(max_workers=None, mp_context=None, initializer=None, initargs=()
+# max_workers is, by default, the number of cores on the machine and must be less than 61. mp_context allows you to
+# enter a multiprocessing context (as seen in the multiprocessing module) and is set to the default multiprocessing
+# context if not entered. initializer is an optional callable run at the beginning of each process, and initargs are
+# the arguments for said callable.
+# ProcessPoolExecutor, since it uses multiprocessing (and therefore multiple cores), is best for cpu bound processes.
+
+prime_nums = [100003, 131071, 198733, 237895]
+
+
+def is_prime(n):  # Function to find primes (not important u can ignore this)
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+
+    sqrt_n = int(math.floor(math.sqrt(n)))
+    for i in range(3, sqrt_n + 1, 2):
+        if n % i == 0:
+            return False
+    return True
+
+
+if __name__ == "__main__":  # Make sure the executor is being run on it's own file
+    with cf.ProcessPoolExecutor() as executor:  # same as ThreadPoolExecutor
+        for number, prime in zip(prime_nums, executor.map(is_prime, prime_nums)):  # Also same as ThreadPoolExecutor
+            print(f"{number} is prime: {prime}")
+
+    with cf.ProcessPoolExecutor() as executor:  # Example of the implementation with chunksize (use w/ big iterables)
+        for number, prime in zip(prime_nums, executor.map(is_prime, prime_nums, chunksize=2)):
+            print(f"{number} is prime: {prime}")
