@@ -1976,8 +1976,10 @@ def is_prime(n):  # Function to find primes (not important u can ignore this)
             return False
     return True
 
-
-if __name__ == "__main__":  # Make sure the executor is being run on it's own file
+# ProcessPoolExecutor, because of it's use of multiprocessing, requires the code to be guarded by if
+# __name__=="__main__"; this messes with the code outside of __main__'s scope, so I will not be running the following
+# code by putting and 0==1 after the __name__=="__main__" statement.
+if __name__ == "__main__" and 0==1:
     with cf.ProcessPoolExecutor() as executor:  # same as ThreadPoolExecutor
         for number, prime in zip(prime_nums, executor.map(is_prime, prime_nums)):  # Also same as ThreadPoolExecutor
             print(f"{number} is prime: {prime}")
