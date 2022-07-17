@@ -1987,3 +1987,156 @@ if __name__ == "__main__" and 0==1:
     with cf.ProcessPoolExecutor() as executor:  # Example of the implementation with chunksize (use w/ big iterables)
         for number, prime in zip(prime_nums, executor.map(is_prime, prime_nums, chunksize=2)):
             print(f"{number} is prime: {prime}")
+            
+#:Multiprocessing:
+print("\n:Multiprocessing:")
+import multiprocessing
+# The multiprocessing module uses similar api to the threading module but is different in that it allows the use of
+# multiple cores during processing (instead of multiple threads).
+# As stated before, multiprocessing requires code to be guarded by if __name__=="__main__", and this messes with the
+# code outside of __main__'s scope, so I will not be running the following code by putting and 0==1 after the
+# __name__=="__main__" statement.
+
+# ---[OS/MULTIPROCESSING FUNCTIONS]---
+# This section is for getting values from the system about processes / multiprocessing data
+# Some of these values are obtained from the os module
+import os
+
+print(f"Module name : {__name__}")  # Gets name of the file running
+print(f"Parent process id : {os.getppid()}")  # Gets the parent process id of the current process
+print(f"Process id : {os.getpid()}")  # Gets the process name of the current id
+print(f"Cpu cores : {multiprocessing.cpu_count()}")  # number of cpu cores
+print(f"Current Process : {multiprocessing.current_process()}")  # Gets name and parent of current process along with
+# whether it has started or not
+if 0 == 1:  # not running because there is no thread to check but this checks if a thread is running
+    print(f"Thread is alive : {example_thread.is_alive()}.")
+
+
+# whether or not it has started or not
+
+# ---[PROCESS AND POOL]---
+# Processes in multiprocessing are formed by creating a Process object and calling it's start method. It is similar
+# to threading in concept and syntax. Pools are similar in functionality to concurrent.future's ProcessPoolExecutor.
+# Pool allows the input of Pool(processes, initializer, init_args, maxtasksperchild). As a reminder, Initializer is an
+# optional callable run at the beginning of each process, and initargs are the arguments for said callable. Proesses
+# is the amount of cores the pool will use and maxtasksperchild is self explanitory.
+
+def hello(name):
+    print(f"Hello, {name}.")
+
+
+def return_hello(name):
+    return f"hello, {name}."
+
+
+if __name__ == "__main__" and 0 == 1:
+    process = multiprocessing.Process(target=hello, args=("Christopher",))
+    process.start()
+    process.join()
+
+    with multiprocessing.Pool() as pool:  # once again, context managers are used
+        pool.map(hello, ["Christopher", "Gavin-Kai"])  # map is the same syntax wise
+
+    with multiprocessing.Pool() as pool:  # return values for map are returned as an iterable
+        results = pool.map(return_hello, ["Christopher", "Gavin-Kai"])
+        for result in results:
+            print(result)
+
+    with multiprocessing.Pool() as pool:  # map_async does not wait for the pool to finish; same as not using .join()
+        pool.map_async(hello, ["Christopher", "Gavin-Kai"])
+
+
+# ---[SHARING DATA BETWEEN PROCESSES]---
+# There are two ways to share processes between processes; a queue (FIFO, pretty much the same as queue.Queue and
+# similar to collections.deque) and a pipe (an object with a two-way connection between proecesses)
+
+def put_items_in_queue(queue):
+    queue.put(True)  # Queue uses the 'put()' function to accept values
+    queue.put([42, None, "hello"])  # Also accepts lists
+
+
+if __name__ == "__main__" and 0 == 1:
+    qq = multiprocessing.Queue()
+    process = multiprocessing.Process(target=put_items_in_queue, args=(qq,))
+    process.start()
+    print(qq.get())  # fetches first queue value
+    process.join()
+
+
+# The best way to demonstrate how a queue can be used is through a reader and writer function
+def writer(count, queue): # self explanitory; adds number to queue based on a count
+    for num in range(count):
+        queue.put(num)
+    queue.put("DONE")
+
+
+def reader(queue): # also self explanitory; reads queue indefinetley until it recieves a "DONE" argument
+    while True:
+        num = queue.get()
+        print(num)
+        if num=="DONE":
+            break
+
+if __name__ == "__main__" and 0==1:
+    qq = multiprocessing.Queue()
+    reader_process = multiprocessing.Process(target=reader, args=(qq,))
+    reader_process.daemon = True # makes sure that the reader_process doesn't terminate when writer_process start
+    reader_process.start()
+    writer_process = multiprocessing.Process(target=writer, args=(3, qq))
+    writer_process.start()
+    reader_process.join() # makes sure that the reader process doesn't terminate after the program ends and can complete
+    # it's loop (because we assigned it as a daemon)
+
+# Pipe shown below
+
+def send_info(connection):
+    connection.send("Example string") # .send() is used to send data
+    connection.send([42, None, "Hello"]) # data can also be sent in an iterable
+    connection.close() # run automatically when garbage data is collected but good practice to do it manually
+
+if __name__=="__main__" and 0==1:
+    parent_connection, child_connection = multiprocessing.Pipe() #If duplex=True (default) then info can be sent both
+    # ways. If duplex is False then conn1 can only be used for receiving messages and conn2 can only be used for
+    # sending messages.
+    process = multiprocessing.Process(target=send_info, args=(child_connection,))
+    process.start()
+    print(f"Parent connection data : {parent_connection.recv()}") # recieves the least recent data sent (FIFO)
+    print(f"Parent connection data : {parent_connection.recv()}") # Note that if there is no data to be received, the
+    # connection will wait for more data to be sent
+    print(f"Data in pipe : {parent_connection.poll()}") # Returns a boolean based on if there is data left in the pipe
+    process.join()
+
+# ---[VALUE SHARED DATATYPE]---
+
+# Multiprocessing offers shared datatypes in the form of multiprocessing.Value. Values need to be identified by their
+# typecode; type codes are identified by this website https://www.educative.io/answers/what-are-type-codes-in-python
+# but will also be shown here: 'c' = character, 'i' = int, 'f' = float, 'd' = dobule
+
+def add(val, addend):
+    val.value = val.value + addend # val itself is just a wrapper, val.value is necessary to access the value
+
+if __name__=="__main__" and 0==1:
+    value = multiprocessing.Value("d", 0) # format is multiprocessing.Value("typecode", value)
+    for _ in range(2): # running the process twice to show that the variable is universally accessible
+        process = multiprocessing.Process(target=add, args=(value, 2))
+        process.start()
+        process.join() # make sure that the value has changed before the next process uses it
+    print(value.value)
+
+# ---[LOCKS]---
+# Locks can be used to force the program to focus on one process at a given time.
+
+def hello(lock, num):
+    lock.acquire() # starts the lock and prevents other processes from running
+    try:
+        print(f"Hello {num}")
+    finally:
+        lock.release() # releases the lock and allows other processes to run
+
+if __name__=="__main__" and 0==1:
+    lock = multiprocessing.Lock() # note that lock takes no parameters
+    for num in range(3):
+        multiprocessing.Process(target=hello, args=(lock, num)).start() # defining/starting process in the same line
+
+# Note that in the process above, the output is liable to getting mixed up (out of order) if they are run in different
+# cores, as some cores might end up running the process faster even if the process is submitted later.
