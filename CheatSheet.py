@@ -676,7 +676,7 @@ test.close()
 
 #:Context Managers:
 print("\n:Context Managers:")
-with open("example_text", "r") as txt:  # The with keyword signifies a context manager; it will auto close after the
+with open("example_text", "w") as txt:  # The with keyword signifies a context manager; it will auto close after the
     # code is finished
     txt.write("Michael - Manager")  # This garuntees that all actions finish and the file closes after operation
 
@@ -799,7 +799,7 @@ print("\n:Metaclasses/One Line Objects:")
 
 # Metaclasses, in the same way that classes have objects as instances, metaclasses have classes as instances.
 # In short, classes define how an object behaves and metaclasses define how classes behave.
-# ---[One line Objects]---
+# ---[ONE LINE OBJECTS]---
 class inherited_object:
     def hello(self):
         print("hello")
@@ -819,7 +819,7 @@ object.num()
 print(object.num)
 
 
-# ---[Metaclasses]---
+# ---[METACLASSES]---
 class capitalize_attributes(type):  # Metaclasses are defined by "type"
     def __new__(self, class_name, bases, attributes):
         print(attributes)  # Prints attributes before the capitalization
@@ -1786,7 +1786,7 @@ def function():
 threads = []  # we will use a list to make sure that the code does not continue until the for loop ends
 
 for _ in range(5):  # '_' signifies a throwaway variable that is not used in the loop
-    thread = threading.Thread(function)
+    thread = threading.Thread(target=function)
     thread.start()
     threads.append(thread)  # Making sure that all threads can be recalled
 
@@ -1814,6 +1814,8 @@ timer.setDaemon(False)  # You can also use .setDaemon() to change whether or not
 timer.setDaemon(True)
 # Not going to start the thread because it would make the output for the rest of the script very messy
 print(f"Is timer a daemon thread : {timer.isDaemon()}")  # Checks to see if a thread is a daemon thread
+
+import time
 
 #:Concurrent Futures Module:
 print("\n:Concurrent Futures Module:")
@@ -1955,7 +1957,7 @@ if 69420 == 42069:
 # Format: ProcessPoolExecutor(max_workers=None, mp_context=None, initializer=None, initargs=()
 # max_workers is, by default, the number of cores on the machine and must be less than 61. mp_context allows you to
 # enter a multiprocessing context (as seen in the multiprocessing module) and is set to the default multiprocessing
-# context if not entered. initializer is an optional callable run at the beginning of each process, and initargs are
+# context if not entered. Initializer is an optional callable run at the beginning of each process, and initargs are
 # the arguments for said callable.
 # ProcessPoolExecutor, since it uses multiprocessing (and therefore multiple cores), is best for cpu bound processes.
 
@@ -1976,10 +1978,11 @@ def is_prime(n):  # Function to find primes (not important u can ignore this)
             return False
     return True
 
+
 # ProcessPoolExecutor, because of it's use of multiprocessing, requires the code to be guarded by if
 # __name__=="__main__"; this messes with the code outside of __main__'s scope, so I will not be running the following
 # code by putting and 0==1 after the __name__=="__main__" statement.
-if __name__ == "__main__" and 0==1:
+if __name__ == "__main__" and 0 == 1:
     with cf.ProcessPoolExecutor() as executor:  # same as ThreadPoolExecutor
         for number, prime in zip(prime_nums, executor.map(is_prime, prime_nums)):  # Also same as ThreadPoolExecutor
             print(f"{number} is prime: {prime}")
@@ -1987,7 +1990,7 @@ if __name__ == "__main__" and 0==1:
     with cf.ProcessPoolExecutor() as executor:  # Example of the implementation with chunksize (use w/ big iterables)
         for number, prime in zip(prime_nums, executor.map(is_prime, prime_nums, chunksize=2)):
             print(f"{number} is prime: {prime}")
-            
+
 #:Multiprocessing:
 print("\n:Multiprocessing:")
 import multiprocessing
@@ -2064,47 +2067,51 @@ if __name__ == "__main__" and 0 == 1:
 
 
 # The best way to demonstrate how a queue can be used is through a reader and writer function
-def writer(count, queue): # self explanitory; adds number to queue based on a count
+def writer(count, queue):  # self explanitory; adds number to queue based on a count
     for num in range(count):
         queue.put(num)
     queue.put("DONE")
 
 
-def reader(queue): # also self explanitory; reads queue indefinetley until it recieves a "DONE" argument
+def reader(queue):  # also self explanitory; reads queue indefinetley until it recieves a "DONE" argument
     while True:
         num = queue.get()
         print(num)
-        if num=="DONE":
+        if num == "DONE":
             break
 
-if __name__ == "__main__" and 0==1:
+
+if __name__ == "__main__" and 0 == 1:
     qq = multiprocessing.Queue()
     reader_process = multiprocessing.Process(target=reader, args=(qq,))
-    reader_process.daemon = True # makes sure that the reader_process doesn't terminate when writer_process start
+    reader_process.daemon = True  # makes sure that the reader_process doesn't terminate when writer_process start
     reader_process.start()
     writer_process = multiprocessing.Process(target=writer, args=(3, qq))
     writer_process.start()
-    reader_process.join() # makes sure that the reader process doesn't terminate after the program ends and can complete
+    reader_process.join()  # makes sure that the reader process doesn't terminate after the program ends and can complete
     # it's loop (because we assigned it as a daemon)
+
 
 # Pipe shown below
 
 def send_info(connection):
-    connection.send("Example string") # .send() is used to send data
-    connection.send([42, None, "Hello"]) # data can also be sent in an iterable
-    connection.close() # run automatically when garbage data is collected but good practice to do it manually
+    connection.send("Example string")  # .send() is used to send data
+    connection.send([42, None, "Hello"])  # data can also be sent in an iterable
+    connection.close()  # run automatically when garbage data is collected but good practice to do it manually
 
-if __name__=="__main__" and 0==1:
-    parent_connection, child_connection = multiprocessing.Pipe() #If duplex=True (default) then info can be sent both
+
+if __name__ == "__main__" and 0 == 1:
+    parent_connection, child_connection = multiprocessing.Pipe()  # If duplex=True (default) then info can be sent both
     # ways. If duplex is False then conn1 can only be used for receiving messages and conn2 can only be used for
     # sending messages.
     process = multiprocessing.Process(target=send_info, args=(child_connection,))
     process.start()
-    print(f"Parent connection data : {parent_connection.recv()}") # recieves the least recent data sent (FIFO)
-    print(f"Parent connection data : {parent_connection.recv()}") # Note that if there is no data to be received, the
+    print(f"Parent connection data : {parent_connection.recv()}")  # recieves the least recent data sent (FIFO)
+    print(f"Parent connection data : {parent_connection.recv()}")  # Note that if there is no data to be received, the
     # connection will wait for more data to be sent
-    print(f"Data in pipe : {parent_connection.poll()}") # Returns a boolean based on if there is data left in the pipe
+    print(f"Data in pipe : {parent_connection.poll()}")  # Returns a boolean based on if there is data left in the pipe
     process.join()
+
 
 # ---[VALUE SHARED DATATYPE]---
 
@@ -2113,30 +2120,182 @@ if __name__=="__main__" and 0==1:
 # but will also be shown here: 'c' = character, 'i' = int, 'f' = float, 'd' = dobule
 
 def add(val, addend):
-    val.value = val.value + addend # val itself is just a wrapper, val.value is necessary to access the value
+    val.value = val.value + addend  # val itself is just a wrapper, val.value is necessary to access the value
 
-if __name__=="__main__" and 0==1:
-    value = multiprocessing.Value("d", 0) # format is multiprocessing.Value("typecode", value)
-    for _ in range(2): # running the process twice to show that the variable is universally accessible
+
+if __name__ == "__main__":
+    value = multiprocessing.Value("d", 0)  # format is multiprocessing.Value("typecode", value)
+    for _ in range(2):  # running the process twice to show that the variable is universally accessible
         process = multiprocessing.Process(target=add, args=(value, 2))
         process.start()
-        process.join() # make sure that the value has changed before the next process uses it
+        process.join()  # make sure that the value has changed before the next process uses it
     print(value.value)
+
 
 # ---[LOCKS]---
 # Locks can be used to force the program to focus on one process at a given time.
 
 def hello(lock, num):
-    lock.acquire() # starts the lock and prevents other processes from running
+    lock.acquire()  # starts the lock and prevents other processes from running
     try:
         print(f"Hello {num}")
     finally:
-        lock.release() # releases the lock and allows other processes to run
+        lock.release()  # releases the lock and allows other processes to run
 
-if __name__=="__main__" and 0==1:
-    lock = multiprocessing.Lock() # note that lock takes no parameters
+
+if __name__ == "__main__" and 0 == 1:
+    lock = multiprocessing.Lock()  # note that lock takes no parameters
     for num in range(3):
-        multiprocessing.Process(target=hello, args=(lock, num)).start() # defining/starting process in the same line
+        multiprocessing.Process(target=hello, args=(lock, num)).start()  # defining/starting process in the same line
 
 # Note that in the process above, the output is liable to getting mixed up (out of order) if they are run in different
 # cores, as some cores might end up running the process faster even if the process is submitted later.
+
+# :Async IO:
+print("\n:Async IO:")
+# Async IO is a module that is used to maximise the usage of a single thread by handling I/O asynchronously using
+# coroutines. A coroutine is a specialized generator function which can be suspended itself during execution, allowing
+# another coroutine to gain control. Async IO use cases are similar to threading.
+
+import asyncio
+
+
+# ---[ASYNC/AWAIT]---
+# The most simple illustration of asyn io functionality is this function, similar to ThreadPoolExecutor from
+# concurrent.futures and threaded for loops. Main point here is to notice the different syntax. The term 'event
+# loop' will be mentioned here; the event loop waits for and dispatches events in a program. Event loops are created
+# with the asyncio.run() function.
+
+async def count():  # the keyword 'async' defines an function with asynchronous functionality (a coroutine); note that
+    # 'async for' and 'async with' are also valid. asynchronous functions, when called, do not run but return a
+    # coroutine object similar to a future.
+    print("One")
+    await asyncio.sleep(1)  # the keyword 'await' suspends the execution of the current coroutine and passes control
+    # back to the event loop. this coroutine will regain control when the function after the 'await' keyword finishes
+    # In order for an object to be placed after an 'await' keyword, it must be awaitable. Awaitable objects are either
+    # another coroutine or an object defining an .__await__() dunder method that returns an iterator (usually the
+    # first). Note that the await keyword is necessary to run asynchronous functions, and the await keyword can only
+    # be placed within another asynchronous function.
+    print("Two")
+
+
+async def main():
+    await asyncio.gather(count(), count())  # gather is similar to map/pool and can be used to run multiple coroutines
+
+
+asyncio.run(main())  # notice that since there is no parallelism, no guard is necessary (if __name__=="__main__"). This
+
+
+# run function creates an event loop to run the asynchronous functions.
+
+
+async def variable(example_variable):
+    return_val = await made_up_function(example_variable)  # you can assign await values like you can normal ones
+    return return_val
+
+
+# ---[CREATE TASK]---
+# You can create a task to stop further lines of code from being blocked by the current line; if the task is waiting
+# on i/o, further lines of code will continue running (same thing as before but within the same coroutine)
+
+async def func():
+    print("Started (inner) function.")
+    await asyncio.sleep(1)
+
+
+async def wrapper():
+    print("Started wrapper function.")
+    await func()  # notice that even though both function are asynchronous, the wrapper function waits for the inner
+    # function because it has been told to do so by the await keyword
+    print("Finished wrapper function.")
+
+
+asyncio.run(wrapper())
+
+
+async def wrapper2():
+    print("Started wrapper2 function.")
+    task = asyncio.create_task(func())  # create tasks is different in that it creates a task object that is run
+    # asynchronously with the rest of the coroutine; note that it won't start until the coroutine itself passes control
+    # back to the event loop, so the 'finished' print statement will actually run before the inner function
+    print("Finished wrapper2 function.")
+
+
+asyncio.run(wrapper2())
+
+
+# The await keyword can also be used to ensure that created tasks finish running before code continues, similar to
+# .join() from multiprocessing/concurrent.futures
+
+async def fetch_data():  # returns data after 1 second
+    await asyncio.sleep(1)
+    return {'data': 1}
+
+
+async def print_numbers():  # prints 1 number incrementally every 0.25 seconds for 1.5 seconds
+    for i in range(6):
+        print(i)
+        await asyncio.sleep(0.25)
+
+
+async def main():
+    task1 = asyncio.create_task(fetch_data())  # 2 tasks are made so that the functions run asynchronously
+    task2 = asyncio.create_task(print_numbers())
+    value = await task1  # await is used to make sure that the return value is ready before it is printed
+    print(value)
+    await task2  # await is used to make sure that the second coroutine is finished
+
+
+asyncio.run(main())
+
+# ---[USING A QUEUE]---
+# Using a queue is illustrated below with a simulation of producers and consumers; the producers create a 'product'
+# (a random hex) and consumers recieve those 'products', both adding and drawing from the same queue. Once you
+# understand the purpose of each function the important thing to note is how the queue functions syntax wise (very
+# similar to the queue from multiprocessing).
+
+import os
+
+
+async def makeitem(size=5):  # Makes a random 'product' (hex value)
+    return os.urandom(size).hex()
+
+
+async def randsleep(caller):  # self explanitory, sleeps for a random number of seconds
+    sleep_time = random.randint(0, 3)
+    print(f"{caller} sleeping for {sleep_time} seconds.")
+    await asyncio.sleep(sleep_time)
+
+
+async def produce(name, queue):  # produces a random number of
+    num = random.randint(0, 5)  # how many producers are made
+    for _ in itertools.repeat(None, num):  # loops to create multiple producers
+        await randsleep(caller=f"Producer {name}")
+        item = await makeitem()  # new item is made, and another producer is started while it is made
+        await queue.put((item))  # queue syntax is similar to multiprocessing
+        print(f"[NEW ITEM] Producer {name} added <{item}> to queue.")
+
+
+async def consume(name, queue):
+    while True:  # continuously checks for new products
+        await randsleep(caller=f"Consumer {name}")  # consumer only checks the queue once every couple of seconds
+        item = await queue.get()  # Consumer obtains product from the queue (if it exists)
+        print(f"[ITEM BOUGHT] Consumer {name} got element <{item}>")
+        queue.task_done()  # is used to support queue.join()
+
+
+async def main(number_of_producers, number_of_consumers):
+    queue = asyncio.Queue()  # instantiate new queue
+    producers = [asyncio.create_task(produce(name, queue)) for name in
+                 range(number_of_producers)]
+    consumers = [asyncio.create_task(consume(name, queue)) for name in range(number_of_consumers)]  # same here
+    await asyncio.gather(*producers)  # gathers and runs all producers
+    await queue.join()  # Awaits consumers and producers to finish
+    for consumer in consumers:  # once the producers and consumers have finished, consumer proccesses are cancelled
+        consumer.cancel()
+
+
+start = time.perf_counter()
+asyncio.run(main(3, 5))  # runs the function asynchronously
+elapsed = time.perf_counter() - start
+print(f"Program completed in {elapsed:0.5f} seconds.")
