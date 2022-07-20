@@ -2324,6 +2324,8 @@ print(f"Int16 array datatype : {int16.dtype}. Float array datatype : {floats.dty
 print(f"Int16 array item size and total size : {int16.itemsize}, {int16.nbytes}. Float array item size and"
       f"total size : {floats.itemsize}, {floats.nbytes}")  # itemsize returns the amount of memory each item takes up,
 # while nbytes returns the amount of memeory the whole array takes up (both returned in bytes)
+lst = [1, 2, 3, 4, 5]
+array = numpy.asarray(lst) # as array turns a list into an array
 
 # :Slicing and Indexing:
 print("\n:Slicing and Indexing:")
