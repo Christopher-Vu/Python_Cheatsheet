@@ -2301,19 +2301,16 @@ elapsed = time.perf_counter() - start
 print(f"Program completed in {elapsed:0.5f} seconds.")
 
 
-# <MATHEMATICAL MODULES>
-print("\n\n\n\n\n<MATHEMATICAL MODULES>")
-# The following three modules, NumPy, matplotlib, and pandas are the core of pythons mathematical capabilities.
-
-#:NumPy:
-print("\nNumPy")
+# <NUMPY>
+print("\n\n\n\n\n<NUMPY>")
 # NumPy, Numper Python, is a C based module that allows for faster mathematical / array processing; it is the base
 # for not only other data science modules but data science itself in python.
 # NOTE THAT THIS IS A SHALLOW VIEW OF NUMPY AND FOR MORE ADVANCED FUNCTIONALITY YOU SHOULD REFER TO THE FULL
 # DOCUMENTATION HERE https://numpy.org/
 import numpy
 
-# ---[ARRAY BASICS]---
+# :Array Basics:
+print("\n:Array Basics:")
 
 array1 = numpy.array([1, 2, 3])  # arrays are instantiated with numpy.array
 array2 = numpy.array([[4, 5, 6], [7, 8, 9]])  # 2d/3d etc. arrays are also possible
@@ -2322,7 +2319,7 @@ print(f"Array1 size : {array1.size}. Array2 size : {array2.size}.")  # number of
 print(f"Array1 shape : {array1.shape}. Array2 shape : {array2.shape}.")  # returns dimensions (height, width, etc.) of
 # the array as a tuple
 lst = [1, 2, 3, 4, 5]
-array = numpy.asarray(lst)  # as array turns a list into an array
+array = numpy.asarray(lst) # as array turns a list into an array
 
 int16, floats = numpy.array([1, 2, 3], dtype="int16"), numpy.array([1, 2, 3], dtype="float")  # datatypes can
 # be defined with the dtype parameter and checked with the dtype attribute shown below
@@ -2331,7 +2328,8 @@ print(f"Int16 array item size and total size : {int16.itemsize}, {int16.nbytes}.
       f"total size : {floats.itemsize}, {floats.nbytes}")  # itemsize returns the amount of memory each item takes up,
 # while nbytes returns the amount of memeory the whole array takes up (both returned in bytes)
 
-# ---[SLICING AND INDEXING]---
+# :Slicing and Indexing:
+print("\n:Slicing and Indexing:")
 
 array3 = numpy.array([[1, 2, 3, 4, 5],
                       [6, 7, 8, 9, 10]])
@@ -2349,7 +2347,8 @@ print(array3)
 array4 = numpy.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 print(array4[[1, 2, 8]])  # you can also index with another list, this is expanded on in :Conditionals:
 
-# ---[INSTANTIATING ARRAYS]---
+# :Instantiating Arrays:
+print("\n:Instantiating Arrays:")
 
 zeros = numpy.zeros(5)  # creates an array of all zeros
 threeD_zeros = numpy.zeros((2, 2, 3), dtype="int16")  # additional elements will be the length of the next dimension
@@ -2376,8 +2375,8 @@ print(numpy.identity(3))  # an identity matrix takes 1 parameter and forms a mat
 array = numpy.array([[1, 2, 3]])  # array stored within another array to make the 0th axis the vertical axis
 print(numpy.repeat(array, repeats=3, axis=0))  # repeat an array (repeat) times along the (axis)th axis
 
-# ---[MATHEMATICAL OPERATIONS]---
-
+# :Mathematical Operations:
+print("\n:Mathematical Operations:")
 array5 = numpy.array([1, 2, 3, 4])
 print(array5 + 2)  # using numpy, mathematical operations can be performed directly on the array
 print(array5 * 2)  # map is not necessary
@@ -2388,8 +2387,8 @@ print(array5 * numpy.array([num + 1 for num in range(4)]))  # comprehensions can
 # IMPORTANT RESOURCE : OTHER MATHEMATICAL ROUTINES ARE DOCUMENTED IN THIS LINK:
 # https://numpy.org/doc/stable/reference/routines.math.html
 
-# ---[STATISTICS]---
-
+# :Statistics:
+print("\n:Statistics:")
 array7 = numpy.array([[3, 1, 5],
                       [4, 2, 6]])
 print(f"Array6 minimum : {numpy.min(array7)}. Array6 maximum : {numpy.max(array7)}.")  # self explanitory, smallest and
@@ -2406,8 +2405,8 @@ print(f"Array7's standard deviation / variance : {numpy.std(array8)}, {numpy.var
 # IMPORTANT RESOURCE : OTHER STATISTICAL ROUTINES ARE DOCUMENTED IN THIS LINK:
 # https://numpy.org/doc/stable/reference/routines.statistics.html
 
-# ---[REORGANIZATION]---
-
+#:Regoranization:
+print("\n:Reorganization:")
 stack1 = numpy.array([[1, 2], [3, 4]])
 stack2 = numpy.array([[5, 6], [7, 8]])
 array9 = numpy.vstack([stack1, stack2])  # vstack (vertical stack) stacks arrays on top of each other
@@ -2415,8 +2414,8 @@ print(array9)
 print(numpy.hstack([stack1, stack2]))  # hstack (horizontal stack) does the same but stacks horizontally
 print(array9.reshape(2, 2, 2))  # reshape can be used to change the structure of an array
 
-# ---[CONDITIONALS]---
-
+# :Conditionals:
+print("\n:Conditionals:")
 nums = numpy.array([1, 13, 21, 11, 196, 3, 298, 34, 6, 98, 123, 154])
 print(nums)
 print(nums > 50)  # conditionals in numpy will return a list of all elements where the conditional is true
