@@ -13,17 +13,21 @@
 import math
 
 skip_input = ""
+skip_matplotlib = ""
 
 
 def q():
     global skip_input
+    global skip_matplotlib
     skip_input = input("Skip all input sections while running (y/n)? ")
-    if skip_input != "y" and skip_input != "n":
-        print("please enter either y or n.")
+    skip_matplotlib = input("Skip all matplotlib sections while running (y/n)? ")
+    if skip_input != "y" and skip_input != "n" or skip_matplotlib != "y" and skip_matplotlib != "n":
+        print("Please enter either 'y' or 'n' for both questions.")
         q()
 
 
 q()
+
 
 # <PRINT AND VARIABLES>
 # use the print() command to print something onto the console. Use vairable = "" to make a variable for a string
