@@ -10,6 +10,9 @@
 #:Informational Subsets: (smaller topics/pieces of a bigger topic); encased in :: and capitalized like book titles
 # ---[SUBSET SECTIONS]--- (for informational subsets that are too broad); encased in ---[]--- and all caps
 # IGNORE THIS FUNCTION
+
+# PIP INSTALL COMMAND: pip install --target=C:\Users\chris\AppData\Local\Programs\Python\Python38\Lib package_name
+
 import math
 
 skip_input = ""
@@ -19,6 +22,7 @@ skip_matplotlib = ""
 def q():
     global skip_input
     global skip_matplotlib
+    global skip_fileIO
     skip_input = input("Skip all input sections while running (y/n)? ")
     skip_matplotlib = input("Skip all matplotlib sections while running (y/n)? ")
     if skip_input != "y" and skip_input != "n" or skip_matplotlib != "y" and skip_matplotlib != "n":
@@ -27,7 +31,6 @@ def q():
 
 
 q()
-
 
 # <PRINT AND VARIABLES>
 # use the print() command to print something onto the console. Use vairable = "" to make a variable for a string
@@ -653,9 +656,9 @@ else:
 #:Reading:
 print("\n\n\n\n---------------\n<FILE IO>")
 print("\n:Reading:")
-example_text = open("example_text", "r")  # The first paramter is the file you're opening, the second is the type of
-# access you have to that file (read R, write W, read and write R+, append A, etc.) Using the file name only works
-# if the file is in the same directory as the python file
+example_text = open("CheatSheet_IO_Files/example_text", "r")  # The first paramter is the file you're opening, the
+# second is the type of access you have to that file (read R, write W, read and write R+, append A, etc.) Using the
+# file name only works if the file is in the same directory as the python file
 print(example_text.readable())  # checks if the file is readable
 print(example_text.readline())  # Prints the first line
 print(example_text.readline())  # Reads the next line
@@ -668,19 +671,20 @@ example_text.close()  # closes file
 
 #:Appending:
 print("\n:Appending:")
-example_text = open("example_text", "a")
+example_text = open("CheatSheet_IO_Files/example_text", "a")
 example_text.write("\nToby - Human Recources")  # adds to the end of the file
 example_text.close()  # closes file
 #:Making new files and writing to files:
 # To write to a new file, write the same thing to open a file but add a name to a file that does not exist
-test = open("index.html", "w")
-test.write("<p>This is HTML<p>")  # Since you are writing to the file and not appending, it will override the whole
-# file with whatever you choose to write
-test.close()
+if 0==1: # not running to not crowd the folder
+    test = open("CheatSheet_IO_Files/index.html", "w")
+    test.write("<p>This is HTML<p>")  # Since you are writing to the file and not appending, it will override the whole
+    # file with whatever you choose to write
+    test.close()
 
 #:Context Managers:
 print("\n:Context Managers:")
-with open("example_text", "w") as txt:  # The with keyword signifies a context manager; it will auto close after the
+with open("CheatSheet_IO_Files/example_text", "w") as txt:  # The with keyword signifies a context manager; it will auto close after the
     # code is finished
     txt.write("Michael - Manager")  # This garuntees that all actions finish and the file closes after operation
 
@@ -704,7 +708,7 @@ class File:  # You can create your own context managers using classes
             return True  # Allows file to keep running after an exception with no interruptions or error message
 
 
-with File("example_text", "w") as file:  # Notice that the __enter__ and __exit__ methods are run
+with File("CheatSheet_IO_Files/example_text", "w") as file:  # Notice that the __enter__ and __exit__ methods are run
     print("Middle")  # Within the context manager
     file.write("Jim - Sales")
     raise Exception()  # __Exit__ is run even if an exception is thrown, making exit handling possible
@@ -721,7 +725,7 @@ def file(filename, method):
     print("Exit")  # Any __exit__ code
 
 
-with file("example_text", "w") as file:
+with file("CheatSheet_IO_Files/example_text", "w") as file:
     print("Middle")
     file.write("Pam - Receptionist")
 
@@ -2127,7 +2131,7 @@ def add(val, addend):
     val.value = val.value + addend  # val itself is just a wrapper, val.value is necessary to access the value
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and 0 == 1:
     value = multiprocessing.Value("d", 0)  # format is multiprocessing.Value("typecode", value)
     for _ in range(2):  # running the process twice to show that the variable is universally accessible
         process = multiprocessing.Process(target=add, args=(value, 2))
@@ -2304,7 +2308,6 @@ asyncio.run(main(3, 5))  # runs the function asynchronously
 elapsed = time.perf_counter() - start
 print(f"Program completed in {elapsed:0.5f} seconds.")
 
-
 # <NUMPY>
 print("\n\n\n\n\n<NUMPY>")
 # NumPy, Numper Python, is a C based module that allows for faster mathematical / array processing; it is the base
@@ -2323,7 +2326,7 @@ print(f"Array1 size : {array1.size}. Array2 size : {array2.size}.")  # number of
 print(f"Array1 shape : {array1.shape}. Array2 shape : {array2.shape}.")  # returns dimensions (height, width, etc.) of
 # the array as a tuple
 lst = [1, 2, 3, 4, 5]
-array = numpy.asarray(lst) # as array turns a list into an array
+array = numpy.asarray(lst)  # as array turns a list into an array
 
 int16, floats = numpy.array([1, 2, 3], dtype="int16"), numpy.array([1, 2, 3], dtype="float")  # datatypes can
 # be defined with the dtype parameter and checked with the dtype attribute shown below
