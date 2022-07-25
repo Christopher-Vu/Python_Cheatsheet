@@ -2424,3 +2424,202 @@ print(nums[nums > 50])  # in numpy you can index with another list, so this can 
 print((nums > 50) & (nums < 100))  # numpy uses the '&' instead of 'and' when chaining conditionals
 print(~(nums < 100))  # the '~' symbol is equivalent to 'not'
 print(nums[~(nums < 100) & (nums < 200)])  # when chaining conditionals, they must be within parenthesis
+
+# <MATPLOTLIB>
+print("\n\n\n\n<MATPLOTLIB>")
+# Matplotlib is a python module used for data visualization which is written in python and uses NumPy (so technically
+# is somewhat based in C). It is written in an object-oriented fashion.
+# MATPLOTLIB DOCUMENTATION HERE : https://matplotlib.org/
+
+# :PyPlot Graph Types:
+print(":PyPlot Graph Types:")
+# matplotlib.pyplot is a collection of command style functions that make Matplotlib work like MATLAB. Pyplot is used to
+# visualize data using graphs.
+# IMPORTANT NOTE; THE GRAPHS SHOWN HERE NEITHER SHOW ALL PARAMETERS NOT ALL GRAPH TYPES, SO FOR OTHER GRAPH TYPES AND
+# PARAMETERS SEE THESE TWO PIECES OF DOCUMENTATION:
+# https://www.tutorialspoint.com/matplotlib/matplotlib_pyplot_api.htm
+# https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.html
+
+import numpy as np  # idk why I didn't import as np last time
+from matplotlib import pyplot as plt
+
+# ---[BAR]---
+# Bar is a bar graph (wow).
+names = ["Trump", "Biden", "Jorgensen", "Hawkins"]  # X axis for the bar graph (the labels for the bars)
+votes = np.random.randint(0, 200, size=4)  # 5 random bar hegihts, ranging from heights of 0-10
+bar_graph = plt.figure("Bar Graph")  # creates a new figure; gone over in detail later
+plt.xlabel("Presidents")  # syntax is self explanitory, but note that these .() function are attributes that can be
+# used directly on the 'bar_graph' variable
+plt.ylabel("Votes")
+plt.title("Presidential Election")
+plt.bar(x=names, height=votes, width=0.75)
+
+if skip_matplotlib == "n":
+    plt.show()  # ;x; is labels onthe x axis, 'height' is the height of the votes
+    # (corresponds 1 : 1 for each element in 'x'), and width is the width of the graph. Note that each parameter
+    # other than width accepts an iterable, which is how multiple bars are used.
+
+# ---[HISTOGRAM]---
+# A histogram is similar to a bar graph but represents a distribution unlike a bar graph
+data = np.random.randint(0, 100, size=500)  # 500 random numbers from 1-100
+data_range = np.array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])  # This list defines the bounds of each bar; all
+# are inclusive/exclusive (so [0, 10), [10, 20), etc.) but the last is inclusive/inclusive (eg. [90, 100])
+height = (0, 50)  # height is quto generated to match the min/max data points, but can be defined in a tuple. Due to the
+# random nature of the data, I will not actually be using this parameter.
+mean = np.sum(data) / 500
+
+histogram = plt.figure("Histogram")
+plt.hist(x=data, bins=data_range, histtype="bar", rwidth=1, edgecolor='black')  # 'x' is the data, 'bins' defines the
+# cutoff for each bar, 'histtype' is the type of histogram (can be 'bar', 'barstack', 'step', or 'stepfilled'),
+# 'rwidth' is the width of each bar relative to the space it can take up, edgecolor is self explanitory
+plt.axvline(mean, color='r', label="Mean", linewidth=2)  # adds a vertical line in the histogram (usually for mean/
+# median requires plt.legend() to see the label
+plt.legend()
+if skip_matplotlib == "n":
+    plt.show()
+
+logdata1, logdata2 = [[num for num_ in range(num)] for num in range(10)], [[num for num_ in range(num * 100)] for num in
+                                                                           range(10, 15)]
+flattended_logdata1, flattened_logdata2 = list(itertools.chain.from_iterable(logdata1)), list(
+    itertools.chain.from_iterable(logdata2))  # flatten lists
+logdata = logdata1 + logdata2  # join lists
+# This data is very scattered (first 10 values are 1-2 digits while the next 5 are 4-5 digits); the smaller values
+# wouldn't be visible on a regular to-size scale
+logdata_range = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+
+histogram2 = plt.figure("Logarithmic Histogram")
+plt.hist(x=logdata, bins=logdata_range, edgecolor='black', log=True)  # the 'log' parameter is a boolean
+# that, when true, displays histogram data logarithmically
+if skip_matplotlib == 'n':
+    plt.show()
+
+# ---[PIE]---
+# Pie makes a pie chart (wow).
+activities = ['sleep', 'eat', 'code']  # labels for the pie chart
+hours = [6, 1.5, 16.5]  # data for the pie chart (correlates 1:1 to the labels)
+colors = ['r', 'g', 'b']  # self explanitory
+explode = [0, 0.1, 0]  # moves a section of the pie out of the chart ('explodes')
+
+pie_chart = plt.figure("Pie Chart")
+plt.title("Average Day in Summer")
+plt.pie(labels=activities, x=hours, colors=colors, explode=explode, wedgeprops={'edgecolor': 'black'}, shadow=True,
+        startangle=90, autopct='%1.1f%%')  # 'labels' self explanitory, 'x' is the data that is used to form the chart,
+# 'colors' self explanitory (note that hex values are usable), 'explode' moves a section out of the pie, 'wedgeprops'
+# is wedgeproperties; see more in documentation, 'shadow' is self explanitory, 'autopct' shows percentages; see more in
+# documentation. There are a lot more parameters but these are the most useful.
+if skip_matplotlib == 'n':
+    plt.show()
+
+# ---[STACK PLOT]---
+# A stack plot is similar to a pie chart in that it shows a distribbution amongst multiple sources but shows the
+# distribution over time (this examples shows players over the course of a game)
+minutes = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60]  # units on the x axis
+# player scores over time; shows distribution over time, so the scores are iterables (shown on y axis)
+labels = ['player 1', 'player 2', 'player 3']
+player1, player2, player3 = [1, 1, 2, 3, 4, 4, 4, 5, 6, 6], [1, 1, 1, 2, 2, 2, 2, 3, 3, 3], [1, 1, 1, 1, 2, 2, 2, 3, 3,
+                                                                                             4]
+plt.stackplot(minutes, player1, player2, player3, labels=labels)  # input x values first, then the iterables that will
+# be shown in the distribution. labels is self explanitory. Note that colors are usable (I just didn't use them)
+plt.legend(loc=(0.05, 0.8))  # assigns labels to colors using a legend; loc is location. Location accepts a tuple
+# where 2 values are taken as distances from the borders (so (0.05, 0.8) is 5% of the total graph size from the left
+# border and 20 from the top border). It also takes the four strings 'top left', 'top right, 'bottom left',
+# and 'bottom right'
+if skip_matplotlib == 'n':
+    plt.show
+
+# ---[PLOT]---
+# A plot is a standard x/y graph with a lines connecting all points
+x = np.arange(0, math.pi * 2, 0.05)  # numpy.arange creates a list w/ the format of (start, end, step). This will be the
+# x axis; there will be points from 0-2pi with a step of 0.05
+y = np.sin(x)  # get the sin of x on the y axis
+plot_graph = plt.figure("Plot Graph")
+plt.xlabel("angle")  # self explanitory
+plt.ylabel("sine")
+plt.title('sine wave')
+
+plt.fill_between(x, y, where=y > 0, alpha=0.25, color='r', interpolate=True)  # fills the area between 2 values with
+# 'alpha' opacity. Note that the first values does not have to be x axis. Where defines a predicate that must be true
+# for the fill to take place, which I used to make different colors above and below 0. Interpolate allows PyPlot to
+# make assumtions to smooth the fill.
+plt.fill_between(x, y, where=y < 0, alpha=0.25, color='b', interpolate=True)
+
+plt.plot(x, y)  # the format is, as you would expect, (x axis, y axis)
+if skip_matplotlib == "n":
+    plt.show()  # plt.show opens a window which displays the graph
+
+# ---[SCATTER]---
+# A scatter plot takes point coordinates (x/y), size (s), opacity (alpha), and other parameters to plot the points on
+# and x/y graph
+points = 50  # define amount of points
+x = np.random.rand(points)  # creates a list of random decimals (with {points} elements)
+y = np.random.rand(points)
+color = np.random.rand(points)  # color guides shown here : https://matplotlib.org/stable/tutorials/colors/colors.html
+# random decimals can be used to generate colors
+marker_size = (30 * np.random.rand(points)) ** 2  # random equation used to generate a marker size (the whole graph is
+# ~130000 on the x axis)
+
+scatter_graph = plt.figure("Scatter Graph")
+plt.scatter(x, y, s=marker_size, c=color, alpha=0.5, marker='o')  # 'x' and 'y' are self explanitory, 's' is size of
+# each point, 'c' is color, 'alpha' is opacity, 'marker' is the symbol used for data points
+if skip_matplotlib == "n":
+    plt.show()
+
+scatter_graph2 = plt.figure("Scatter Graph 2")
+plt.scatter(x, y, marker='o', alpha=0.75, cmap='Greens')  # color maps are gradients that give a point color based on
+# a theme
+plt.xscale('log')  # displays on a logaritmic scale
+plt.yscale('log')
+color_bar = plt.colorbar()  # a colorbar is a gradient with numeric labels on the side of the historgram
+color_bar.set_label("Example metric")
+if skip_matplotlib == 'n':
+    plt.show()
+
+# :Object Oriented Interfance:
+print("\nObject Oriented Interface")
+# In the last section, the pyplot.figure class was used simply to separate graphs across 5 different windows. These
+# figure objects are built into matplotlib and give you more control over the build of a graph.
+
+# ---[FIGURES]---
+
+print(f"All available PyPlot styles : \n{plt.style.available}")  # self explanitory
+
+figure = plt.figure()  # plt.figure gives you an empty figure (graph) object
+graph = figure.add_axes([0, 0, 1, 1])  # .add_axes() takes four parameters for the bounds of the graph; they are
+# formatted as (left, bottom, right, top). When plt.show is run, multiple graphs can be shown in the same window, and
+# the axes define where each figure is shown (subplots; demonstrated later)
+
+# same sine wave example from earlier
+x1, y1, y2 = [1, 2, 3, 4, 5], [1, 4, 9, 16, 25], [1, 4, 6, 8, 10]  # / y = x^2 / y = 2x
+graph.plot(x1, y1, label="y=x^2", color='r', linestyle="-.", marker="o", linewidth=3)
+
+graph.plot(x1, y2, label="y=2x", color='#0000FF', linestyle='--', marker='o')
+# Notice that multiple plots can be on the same figure
+
+plt.legend()  # makes use of the 'label' parameters; you can also pass labels into the legend() function as an iterable
+plt.grid(True)
+plt.style.use("fivethirtyeight")
+if skip_matplotlib == "n":
+    plt.show()
+
+# ---[SUBPLOTS]---
+
+if 0 == 1:
+    figure, ax = plt.subplots(nrows=2, ncols=1)  # subplots allows multiple plots in 1 figure; you must define how many
+# rows/columns ('nrows' and 'ncols') when creating one (default is, of course, (1, 1))
+
+figure, (ax1, ax2) = plt.subplots(nrows=2, ncols=1)  # you can also unpack the plots as a tuple like so, which is what
+# I will do for clarity
+
+ax1.plot(x1, y1)  # using the same data from the last figure but now on different plots
+ax2.plot(x1, y2)
+
+ax1.set_title('y = x^2')  # self explanitory
+ax1.set_xlabel('x')
+ax1.set_ylabel('y')
+ax2.set_title('y = 2x')
+ax2.set_xlabel('x')
+ax2.set_ylabel('y')
+
+plt.tight_layout()  # fixes formatting issues with window size and overlapping plots
+if skip_matplotlib == 'n':
+    plt.show()  # show command remains the same
