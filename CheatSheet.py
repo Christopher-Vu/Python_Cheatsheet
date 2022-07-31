@@ -2630,3 +2630,429 @@ ax2.set_ylabel('y')
 plt.tight_layout()  # fixes formatting issues with window size and overlapping plots
 if skip_matplotlib == 'n':
     plt.show()  # show command remains the same
+
+   # <PANDAS>
+
+print("\n\n\n\n<PANDAS>")
+# Pandas is a data analysis tool used for data science/data analysis and machine learning. For demonstration of
+# functions, I will be using the stack overflow survey from 2021, which is stored in a csv (comma-separated values)
+# file. A csv file is essentially a table (similar to an excel spreadsheet)
+import pandas as pd
+
+#:Loading Data + Basics:
+print("\n:Loading Data + Basics:")
+
+# ---[LOADING DATA FROM CSV]---
+
+data = pd.read_csv("CheatSheet_IO_Files/stack_overflow_2021_survey_data.csv")  # stores the csv's data
+print(f'Shape of data : {data.shape}')  # remember that it is a numpy array, so numpy functions can be run on it.
+
+# Since the file has too many rows/columns to print, it will only print the first/last 5 rows and the
+# first/last columns by default
+pd.set_option('display.max_columns', 3)  # we can change these values with .set_option()
+pd.set_option('display.max_rows', 4)
+print(f'\n{data}\n')
+print(data.head(3))  # prints the first 'n' rows
+print(data.tail(3))  # prints the last 'n' rows
+
+# ---[DATAFRAME/SERIES/INDEXING]---
+# When reading data from a csv (or any data file), the data is stored in a DataFrame.
+
+people = {  # dictionaries can be converted into dataframe (because they are similar in nature to a csv)
+    'first': ['Christopher', 'Gavin-Kai', "Elise"],
+    'last': ["Vu", 'Vida', "Vu"],
+    'email': ['Christophervu4@gmail.com', 'GKnanochaos@gmail.com', "EliseVu1014@gmail.com"]
+}
+
+dataframe = pd.DataFrame(people)
+print(f'Full dataframe : \n{dataframe}\n')
+print(f'Only last names : \n{dataframe["last"]}\n')  # 'keys' can be used like an index to get full columns of data; it
+# returns a 'series' object which is a 2d array where each row is correlated with a number
+print(f'First and email : \n{dataframe[["first", "email"]]}\n')  # you can also pass an iterable like an index to access
+# multiple columns
+print(f'Columns : {dataframe.columns}')  # returns evey column in the dataframe
+print(f'First/Second row : \n{dataframe.iloc[[0, 1]]}\n')  # returns the row of 'n' index (takes an iterable)
+print(f'First/Second row, first column : \n{dataframe.iloc[[0, 1], [0]]}\n')  # it also takes another parameter (again,
+# an iterable) that defines which columns are returned
+print(f'First row (loc) : \n{dataframe.loc[0]}\n')  # returns the row (and column names) of the nth row (where n is the
+# number before the row; the index)
+print(f'First/second row : \n{dataframe.loc[[0, 1], "email"]}\n')  # you can define rows w/ an iterable and (unlike
+# integer location / iloc) you can define columns be their string name
+
+# reminder that 'data' is the csv file that contains the stackoverflow results
+
+if 0 == 1:  # reminder that we can use this to identify which string/index to use for any given column
+    print(f'Columns : \n{data.columns}')
+print(f"Employment : \n{data['Employment'].value_counts()}\n")  # value_counts() counts the different values of a column
+print(f"Employment (participants 1/2/3) : \n{data.loc[0:2, 'Employment']}\n")  # list splicing can also be used (syntax
+# is the same; start:end:step)
+
+# ---[INDEXING]---
+# Reminder that 'dataframe' is a series of 2 people rows and 3 columns (first, last, email)
+
+dataframe.set_index('email', inplace=True)  # Usually indices are just a series of numbers 1 to n beside the list,
+# but you can set the index to be something else with the set_index() function (and setting 'inplace' to True)
+print(f'Christophervu4@gmail.com : \n{dataframe.loc["Christophervu4@gmail.com"]}\n')  # Notice that the email is where
+# the number usually would be
+try:
+    print(dataframe.loc[1])  # loc will no longer accept integers because the new index is the email
+except Exception as e:
+    print(f'Error : {str(e)}')
+    print(f'\n{dataframe.iloc[1]}\n')  # iloc (integer location) is still available for indexing via integers
+dataframe.reset_index(inplace=True)  # resets indices to default
+print(f'First row : \n{dataframe.loc[0]}\n')
+
+schema = pd.read_csv("CheatSheet_IO_Files/stack_overflow_2021_survey_schema.csv", index_col='qname')
+# note that if using a csv, you can set the index when reading it with the 'index_col' parameter
+print(f'Survey ease question : \n{schema.loc["SurveyEase", "question"]}\n')  # we can now use question id's as indices
+print(f'Schema indices sorted : \n{schema.sort_index()}\n')  # sort_index() alphabeically/numerically sorts the indices
+# of a dataframe
+if 0 == 1:
+    schema.sort_index(ascending=False)  # reverses the sorting order
+
+# :Conditionals and Filtering:
+print("\n:Conditionals and Filtering:")
+# Conditionals in Pandas is similar to the conditionals in NumPy
+
+print(f"Last name is Vu : \n{dataframe['last'] == 'Vu'}\n")  # using conditionals on a column will return a series of
+# True/False values
+filter = (dataframe['last'] == 'Vu')  # like numpy, we can assign this series to a variable (parenthesis required)
+print(f"People with last names 'vu' : \n{dataframe[filter]}\n")  # we can also index only rows that meet the filter
+
+filter = (dataframe['last'] == 'Vu') & (dataframe['first'] == 'Christopher')  # the '&' conditional is the same as NumPy
+print(f"Christopher Vu : {dataframe.loc[filter, 'email']}\n")  # self explanitory but this can also be used with loc
+
+# Salary example from stack voerflow survey
+high_salary_filter = data['ConvertedCompYearly'] > 100000
+pd.set_option('display.max_columns', 4)
+pd.set_option('display.max_rows', 6)
+high_salary_workers = data.loc[high_salary_filter, ['ConvertedCompYearly', 'Country', 'Ethnicity']]
+print(f"Salary/Country/Ethnicity of programmers w/ a salary of >100,000 : \n{high_salary_workers}\n")
+
+# You can also make lists and use the .isin() function to use an iterable as a filter
+countries = ['United States of America', 'Singapore', 'Japan', 'Korea', "China"]
+filter = data['Country'].isin(countries)  # checks if the specified piece of data matches a value in an iterable
+print(f"Software developers living in the US, Singapore, Japan, Korea, or China : {data.loc[filter, 'Country']}")
+
+# String methods (most notably, 'contains') can be used as well with the .str attribute
+print(data.columns)
+filter = data['LanguageHaveWorkedWith'].str.contains('Python', na=False)  # na=False means to ignore NaN (None) values
+print(f"Programmers who have worked with python : \n{data.loc[filter, 'LanguageHaveWorkedWith']}\n")
+
+# :Modifying/Deleting/Adding to a Dataframe:
+print("\nModifying/Deleting/Adding to a Dataframe")
+
+# ---[MODIFYING A DATAFRAME]---
+
+people = {  # new dataframe where the first/last columns have spaces in them
+    'first name': ['Christopher', 'Gavin-Kai', "Elise"],
+    'last name': ["Vu", 'Vida', "Vu"],
+    'email': ['Christophervu4@gmail', 'GKnanochaos@gmail', "EliseVu1014@gmail"]
+}
+df = pd.DataFrame(people)
+
+df.columns = df.columns.str.replace(' ', '_')  # replace is self explanitory; synax is ('old str', 'new str')
+print(f'Underscored columns : {df.columns}')
+df.rename(columns={'first_name': 'first',
+                   'last_name': 'last'}, inplace=True)  # you can also use rename, which replaces individual values
+# using a dictionary as a key
+print(f'Renamed columns : {df.columns}')
+
+df.loc[1] = ['Gavin', 'Vida', 'GavinKaiVida@gmail']  # you can also just set individual rows to different values
+# with an iterable
+print(f'Altered Gavin data : \n{df.loc[1]}\n')
+df.loc[2, ['first', 'email']] = ['Elise Kate', 'EliseVu@gmail']  # we can also speccify which values to change
+print(f'Altered Elise data : \n{df.loc[2]}\n')
+
+df['email'] = df['email'].str.lower()  # note that string methods also work for modification
+print(f'Lowercased emails : \n{df["email"]}\n')
+
+print(f"Email lengths : \n{df['email'].apply(len)}\n")  # apply applies a function to every value in a series (note that
+# there is no parenthesis)
+print(f"Emails before .com added : \n{df['email']}\n")
+print(f"Emails with .com added: \n{df['email'].apply(lambda x: x + '.com')}\n")  # lambda functions are also usable
+print(f"Dataframe : \n{df}\n")  # note that the dataframe has not actually been changed. To change the data values
+# with apply, we can't just call the function, rather we need to set the value by calling the dataframe;
+df['email'] = df['email'].apply(lambda x: x + '.com')
+print(f"Dataframe : \n{df}\n")  # notice that now the changes have taken place
+print(f"Dataframe lengths : \n{df.apply(len)}\n")  # applying a function to a dataframe will apply it by row; this
+# function will return the length of each row
+print(f"Dataframe lengths : \n{df.apply(len, axis='columns')}\n")  # you can change the application to columns with
+# 'axis='
+print(f"All lengths : \n{df.applymap(len)}\n")  # applymap applies a function to every element of the dataframe
+
+# Example with the stack overflow survey
+data.rename(columns={"ConvertedCompYearly": "Salary"}, inplace=True)
+data['Trans'] = data['Trans'].map({'Yes': True, 'No': False})  # you can use map to assign values based on a dictionary;
+# same syntax as replace
+print(f"Trans data : \n{data['Trans']}\n")
+
+# ---[ADDING TO/DELETING FROM A DATAFRAME]---
+
+df.loc[2, 'first'] = 'Elise'  # this next section requires all names to be the same amt of words
+
+# Adding/Removing Columns
+if 0 == 1:
+    df['first'] = df['first'] + ' ' + df['last']  # you can combine the values of columns into one column with a +
+    # operator
+df['full name'] = df['first'] + ' ' + df['last']  # to create a new column, simply assign a value to a column that
+# doesn't exist (apply also works)
+df.drop(columns=['first', 'last'], inplace=True)  # drop() deletes columns
+print(f"New 'full name' dataframe : \n{df}\n")
+if 0 == 1:
+    df['full name'].str.split(' ')  # split() is a method that splits an element and returns an iterable, the string
+    # being split every time a certain character/characters appears (in this case, at every space)
+df[['first', 'last']] = df['full name'].str.split(' ', expand=True)  # setting expand to true creates new columns for
+# each element in the returned iterable
+print(f"New split dataframe : \n{df}\n")
+
+# Adding/Removing Rows
+# Adding rows with loc; note that for this you need to know the next index number and the number of columns
+df.loc[3] = ['AlexMaxon@gmail.com', 'Alex Maxon', 'Alex', 'Maxon']  # this is the simplest way, but you must know the
+# next index (or you risk breaking chronology or causing interference) and the amount of columns (error if the
+# number of parameter doesn't match the number of items in the list)
+print(f"Dataframe with new row : \n{df}\n")
+
+# you cannot append directly to a dataframe w/ a dictionary, rather you must create a new dataframe and combine them
+values = pd.DataFrame({'first': 'Michael', 'last': 'Vu', 'full name': 'Michael Vu', 'email':
+    'Michaelvu4@aol.com'}, index=[0])  # create a new dataframe from a dict; note that with a dict we must add an index
+df = pd.concat([df, values], ignore_index=True)  # concat() will combine the two new dataframes; not that 'ignore_index'
+# is set to true to make sure that the indices are chronological
+
+print(f"Dataframe with new person added : \n{df}\n")
+df = pd.concat([df, pd.DataFrame.from_records([{'first': 'Lucy'}], index=[0])], ignore_index=True)  # Missing values
+# will always be filled with 'NaN'; note that the concat syntax can be done in one line like shown.
+print(f"Dataframe with missing values : \n{df}\n")
+
+# :Sorting Data:
+print(f"\n:Sorting Data:")
+print(f"Sorted by last : \n{df.sort_values(by=['last'], ascending=True)}\n")  # df.sort_values is the simplest way to
+# sort; 'by' is the sort key and 'ascending' defined the order (True = lowest values first, False is the opposite)
+print(f"Sorted by last, first \n{df.sort_values(by=['last', 'first'], ascending=[True, False])}\n")  # you can input
+# iterables for both the 'by' and 'ascending' parameters; when the last names are the same it compares the first
+print(f"Sorted by index : \n{df.sort_index()}\n")  # remember that sort index sorts by index
+
+# stack overflow example
+print(f"Developers sorted by salary : \n{data.sort_values(by=['Salary'], ascending=False)}\n")  # using sort to find
+# developers with highest salary
+
+# You can also use nlargest and nsmallest to get the first 'x' largest/smallest values
+print(f"3 highest paid developers : \n{data['Salary'].nlargest(3)}\n")  # 3 largest salaries (only shows salary column)
+print(f"3 lowest paid developers : \n{data['Salary'].nsmallest(3)}\n")  # syntax is the same for nsmallest()
+try:  # note that this operation cannot be performed directly on the dataframe when specifying columns w/ either
+    # 'object' or 'category' datatypes
+    print(f"3 highest paid developers : \n{df.nlargest(3, 'Salary')}\n")
+    print(f"3 lowest paid developers : \n{df.nsmallest(3, 'Salary')}\n")
+except Exception as e:
+    print(f'Error : {str(e)}')
+
+# Grouping and Aggregating Data:
+print("\nGrouping and Aggregating Data:")
+# Grouping and aggregating is, generally, finding the mean, median, and mode of data. Note that MMM stands for mean,
+# median, and mode.
+
+# ---[BASICS]---
+print(f"Median salary : {data['Salary'].median()}")  # returns the median of a series
+print(f"Mean salary : {data['Salary'].mean()}")  # returns the mean of a series
+print(f"Mode salary : {data['Salary'].mode()}")  # returns mode of a series
+print(f"Survey medians : \n{data.median(numeric_only=True)}\n")  # running MMM on a dataframe returns a median;
+# numeric only is self explanitory
+print(f"Description : \n{data.describe()}\n")  # returns useful values; count, mean, standard deviation, min/max, etc.
+# Note that NaN data values do not count for means, medians, etc.
+print(f"Ages when people first coded : \n{data['Age1stCode'].value_counts()}\n")  # returns how many people answered
+# each answer (example: 4000 people said that they coded first at age 15, etc.)
+print(f"Ages when people first coded in percentage : \n{data['Age1stCode'].value_counts(normalize=True)}\n")  # returns
+# decimals were 0.01 = 1%
+
+# ---[GROUPING AND AGGREGATING]---
+# Grouping is essentially when data of one attribute is separated by data of another attribute (example: salary
+# by country)
+country_group = data.groupby(["Country"])  # this is an object that can be used as a parameter to group by an attribute
+print(f"People from India : \n{country_group.get_group('India')}\n")  # this is like a filter, but instead of
+# being the parameter for the filter, it is the filter and takes parameters; this means that we can filter
+# multiple countries
+
+print(f"Transgender counts by country : \n{country_group['Trans'].value_counts()}\n")  # in this example, we run value
+# counts on country group to effectively break up data by country
+print(f"Transgender counts by country : \n{country_group['Trans'].value_counts().loc['India']}\n")  # we can also use
+# dataframe functions on this, most notable .loc[] to find sections of data
+print(f"Transgender counts by country : \n{country_group['Trans'].value_counts(normalize=True).loc['India']}\n")
+# reminder that 'normalize will return values as percentage decimals
+
+print(f"Median salary by country : \n{country_group['Salary'].median()}\n")  # You can also apply MMM to this to get
+# mean/median/mode of a column by coutry
+print(f"Median salary by country : \n{country_group['Salary'].median().loc['Germany']}\n")  # We can use loc to get
+# specific rows from this serie
+print(f'Median salary by country : \n{country_group["Salary"].agg(["median", "mean"])}\n')  # agg() allows you to run
+# multiple functions; it returns a dataframe where the columns are the functions you pass in and the rows are the group
+# Once again, .loc can be used on .agg() to find individual rows
+
+# Since you can get a list of all people and who works with python as a series of true/false values, you can use sum
+# to find the total number of people who fill a conditional (because True=1 and False=0).
+pythonistas = data['LanguageHaveWorkedWith'].str.contains('Python').sum()  # total num of people who have worked
+# with python
+print(f"Total number of people who have worked with python : {pythonistas}.")
+# This can be replicated on a group with the apply method and a lambda function like so :
+pythonistas = country_group['LanguageHaveWorkedWith'].apply(lambda x: x.str.contains('Python').sum())
+print(f"Total Number of people who have worked with python by country : \n{pythonistas}\n")
+
+# Example where the percentage of people who use python in each country is shown
+countries = data['Country'].value_counts()
+uses_python = country_group['LanguageHaveWorkedWith'].apply(lambda x: x.str.contains('Python').sum())
+CUP = pd.concat([countries, uses_python], axis='columns', ignore_index=True)
+CUP['Python_Usage'] = CUP[1] / CUP[0]
+CUP.rename(columns={0: 'Developers', 1: 'Pythonistas'}, inplace=True)
+print(CUP)
+
+# :Handling Missing Values and Casting Datatypes:
+print(f"\n:Handling Missing Values and Casting Datatypes:")
+# Missing values come in three forms; 1) np.nan (not a number) values, 2) None values, and 3) Custom missing values
+# (represented below as 'NA' and 'Missing' strings)
+
+# ---[HANDLING MISSING VALUES]---
+
+people = {  # dataframe from earlier, but this time there are multiple missing values
+    'first': ['Christopher', 'Gavin-Kai', "Elise", np.nan, None, 'NA'],
+    'last': ["Vu", 'Vida', "Vu", np.nan, None, 'Missing'],
+    'email': ['Christophervu4@gmail.com', 'GKnanochaos@gmail.com', "EliseVu1014@gmail.com", np.nan, np.nan, 'NA']
+}
+people = pd.DataFrame(people)
+
+print(f'Dataframe with no NaN values : \n{people.dropna()}\n')  # removes all rows that contain NaN/Nonetype values;
+# notice that it does not affect custom missing values
+print(f'Dataframe without missing rows : \n{people.dropna(axis="index", how="all")}\n')  # dropna() takes 3 parameters;
+# 'axis' can be set to either 'index' (remove rows w/ missing values) or 'columns' (remove columns w/ missing values),
+# and 'how' which defines the criteria necessary to drop a row. how='all' means that all values need to be missing to
+# drop the row. The third is shown below.
+print(f'Dataframe with emails : \n{people.dropna(subset=["email"])}\n')  # subset takes an iterable and only checks
+# those sections for missing values, and only drops if one of them is empty
+
+# The best way to use custom missing values is to replace it with a np.nan value
+people.replace(['NA', 'Missing'], np.nan, inplace=True)
+print(f'NaN values in dataframe : \n{people.isna()}\n')  # isna() shows NaN values as a dataframe; notice that values
+# that were previously 'NA' or 'Missing' are now NaN
+print(f'"MISSING" for NaN values : \n{people.fillna("MISSING")}\n')  # fills all NaN values with a string/int/bool
+
+# ---[CASTING DATATYPES]---
+
+ages = pd.DataFrame({'age': [13, 19, 21, 23, 28, 39, 45, 57, np.nan, np.nan, np.nan]})  # ages dataframe
+print(f'NaN datatype : {type(np.nan)}')  # NaN's datatype is float
+ages['age'] = ages['age'].astype(float)  # to perform computations with nan values, changing the whole set to float
+# is necessary (because float/double/int types cannot be used together in the same operation)
+print(f'Average age : {ages["age"].mean()}')
+
+# :Working With Dates and Time Series Data:
+print("\n:Working With Dates and Time Series Data:")
+# For this section, the price of ethereum over time will be used as the time series data because the stack overflow
+# survey doesn't have any date data.
+eth = pd.read_csv("CheatSheet_IO_Files/ETH_1h.csv")
+
+# Note that in this csv file, the 'date' column is not formatted as a datetime; we must convert it to a datetime so
+# that datetime operations can be performed on it; to do this we must pass a format string w/ datetime codes:
+# https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
+eth['Date'] = pd.to_datetime(eth['Date'], format='%Y-%m-%d %I-%p')  # to_datetime() requires 2 parameters; the target
+# dataset and the format in which said datasest is formatted
+print(f"Latest day : {eth.loc[0, 'Date'].day_name()}")  # we can now run datetime functions
+
+# This can also be done when passing in the csv file to be read with the parse_dates() method
+if 0 == 1:  # of course this can be done in one line but the variable is for readability
+    parser = lambda date: pd.datetime.strptime(date, '%Y-%m-%d %I-%p')  # strptime turns strings into datetime objects
+    # given a format
+    eth = pd.read_csv("CheatSheet_IO_Files/ETH_1h.csv", parse_dates=['Date'], date_parser=parser)  # the iterable passed
+    # into parse dates is the date column and date_parser is the function that turns it into a datetime object
+
+print(f'Days of the week : \n{eth["Date"].dt.day_name()}\n')  # {dataframe}.dt.{function}() will run a datetime function
+# on every row of a dataframe and return the results as a new series
+eth['Day of Week'] = eth["Date"].dt.day_name()  # these series can be added as rows
+print(f"New ethereum dataframe : \n{eth}\n")
+print(f'Earliest Date : {eth["Date"].min()}')  # min() and max() will return the earliest and latest dates
+print(f'Latest Date : {eth["Date"].max()}')
+print(f'Total days : {eth["Date"].max() - eth["Date"].min()}')
+
+# Filters can also be used, just like normal dataframes
+filt = (eth['Date'] >= pd.to_datetime('2019-01-01')) & (eth['Date'] < pd.to_datetime('2020-01-01'))
+print(f'Data later than 2020 : {eth.loc[filt]}')
+
+# You can also set the index to the date so that you can perform searches by date
+eth.set_index('Date', inplace=True)
+print(f'2019 values : {eth.loc["2019"]}')
+print(f'Jan-Feb 2019 : {eth["2019-01": "2019-02"]}')  # a colon can be used to specify a range
+print(f'Jan-Feb 2019 closes : {eth["2019-01": "2019-02"]["Close"]}')  # remember that you can still index columns
+print(f'Jan-Feb 2019 close mean : {eth["2019-01": "2019-02"]["Close"].mean()}')  # and use that data for MMM
+
+# Resampling allows you to pick a certain kind of data and find it's max/min/mean/etc. on a different time basis
+# Pandas date offset codes : https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#dateoffset-objects
+print(f'Daily high : {eth["High"].resample("D").max()}')  # measuring the max high and returning a series that shows
+# it on a daily basis (instead of hourly)
+
+# These series can be used with matplotlib to create plots (this is very surface level but everything else you might
+# need on graphs is either earlier or in the matplotlib section)
+highs = eth["High"].resample("D").max()
+if skip_matplotlib == 'n':
+    plt.plot(highs)
+    plt.show()
+
+# "Iterating With Dataframes:
+print("\n:Iterating With Dataframes:")
+# There are 3 ways to iterate over a dataframe; iteritems() (iterate over key, value) pairs, and iterrows() (iterate
+# over rows as (index, [series]) pairs).
+people = {  # dictionaries can be converted into dataframe (because they are similar in nature to a csv)
+    'first': ['Christopher', 'Gavin-Kai'],
+    'last': ["Vu", 'Vida'],
+    'email': ['Christophervu4@gmail.com', 'GKnanochaos@gmail.com']
+}
+people = pd.DataFrame(people)
+
+for key, value in people.iteritems():
+    print(f'Key : {key}, Value : \n{value}.')  # Notice that the key is the column name and the value is a series of
+    # all values of that column
+
+print('\n')
+
+for row_index, row in people.iterrows():
+    print(f'Row index : {row_index}, row : \n{row}')  # The row index is the numerical index of each row and the row is
+    # the value of each column for column.loc[row_index]
+
+# :Adressing Different File Types:
+print('\n:Adressing Different File Types')
+# This section covers TSV, excel, and JSON files, as well as SQL databases. Note that none of the commands will
+# actually be carried out as I'm too lazy to actually create all of these files.
+
+# ---[TSV FILES]---
+if 0 == 1:
+    tsv = pd.read_csv('tsvfile/directory.tsv', sep='\t')  # the syntax for reading TSV is pretty much exactly the same
+    # as a CSV except the read command requires the sep parameter (separator) to be set to '\t' (tab)
+    example_dataframe.to_csv('tsvfile/directory.tsv', sep='\t')  # turning a dataframe to a tsv
+
+# ---[EXCEL FILES]---
+import xlwt
+import openpyxl
+import xlrd
+
+if 0 == 1:
+    excel = pd.read_excel('excelfile/directory.xlsx')  # read excel file
+    example_dataframe.to_excel('excel_file/directory.xlsx')  # turning a dataframe
+
+# ---[JSON FILES]---
+if 0 == 1:
+    json = pd.read_json('JSONfile/directory.json', orient='records', lines=True)  # JSON is different in that you can
+    # set a parameter, 'orient', to different values to change how the data is displayed. Documentation here:
+    # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
+    # 'lines' is specifically for 'orient=records' and makes the file line-delimited (separated by lines)
+    example_dataframe.to_json('json_file/directory.json', orient='columns')  # to_json turns a dataframe into a JSON
+    # file and takes the same parameters
+
+# ---[SQL DATABASES]---
+from sqlalchemy import create_engine  # all you need if you are working with SQLlite
+import psycopg2  # for working with postgres
+
+if 0 == 1:
+    engine = create_engine('postgresql://user:pass@localhost:1234/name')  # Start with a connection string
+    # (documentation for that here : https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls), followed by
+    # the username and password to the database, followed by the host (@localhost means on your local computer),
+    # followed by the port, followed by the database name.
+    # FULL FORMAT : "connection_string://username:password@host:port/database_name"
+    sql = pd.read_sql('table_name', engine, index_col='column')  # we start with the name, followed by the engine,
+    # followed by the index column
+    example_dataframe.to_sql('table_name', engine, if_exists='replace')  # same syntax for the most part; if exists
+    # determines what to do if the table already exists (in this case, replace it)
