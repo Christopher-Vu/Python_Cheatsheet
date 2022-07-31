@@ -1,7 +1,7 @@
 # Python_Cheatsheet
 ## BRIEF HISTORY
 A collection of everything I have learned in python; was keeping it in pycharm but decided to move it to Github as well. 
-Originally this file was for freecodecamp's python course,, but I started adding to this again ~1 month ago and got
+Originally this file was for freecodecamp's python course, but I started adding to this again ~1 month ago and got
 an extra 1400 lines on it (7/13/2022), so maybe worth sharing. Gonna update this pretty much daily whenever I learn anything.
 
 ## IF YOU PLAN TO RUN IT
