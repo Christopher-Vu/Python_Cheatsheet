@@ -676,7 +676,7 @@ example_text.write("\nToby - Human Recources")  # adds to the end of the file
 example_text.close()  # closes file
 #:Making new files and writing to files:
 # To write to a new file, write the same thing to open a file but add a name to a file that does not exist
-if 0==1: # not running to not crowd the folder
+if 0 == 1:  # not running to not crowd the folder
     test = open("CheatSheet_IO_Files/index.html", "w")
     test.write("<p>This is HTML<p>")  # Since you are writing to the file and not appending, it will override the whole
     # file with whatever you choose to write
@@ -684,7 +684,8 @@ if 0==1: # not running to not crowd the folder
 
 #:Context Managers:
 print("\n:Context Managers:")
-with open("CheatSheet_IO_Files/example_text", "w") as txt:  # The with keyword signifies a context manager; it will auto close after the
+with open("CheatSheet_IO_Files/example_text",
+          "w") as txt:  # The with keyword signifies a context manager; it will auto close after the
     # code is finished
     txt.write("Michael - Manager")  # This garuntees that all actions finish and the file closes after operation
 
@@ -2532,7 +2533,7 @@ plt.legend(loc=(0.05, 0.8))  # assigns labels to colors using a legend; loc is l
 # border and 20 from the top border). It also takes the four strings 'top left', 'top right, 'bottom left',
 # and 'bottom right'
 if skip_matplotlib == 'n':
-    plt.show
+    plt.show()
 
 # ---[PLOT]---
 # A plot is a standard x/y graph with a lines connecting all points
@@ -2631,7 +2632,7 @@ plt.tight_layout()  # fixes formatting issues with window size and overlapping p
 if skip_matplotlib == 'n':
     plt.show()  # show command remains the same
 
-   # <PANDAS>
+# <PANDAS>
 
 print("\n\n\n\n<PANDAS>")
 # Pandas is a data analysis tool used for data science/data analysis and machine learning. For demonstration of
@@ -3056,3 +3057,379 @@ if 0 == 1:
     # followed by the index column
     example_dataframe.to_sql('table_name', engine, if_exists='replace')  # same syntax for the most part; if exists
     # determines what to do if the table already exists (in this case, replace it)
+
+# <BEAUTIFUL SOUP>
+print('\n\n\n\n<BEAUTIFUL SOUP>')
+# Beautiful Soup is a module that is used for web scraping using python.
+import regex as re
+from bs4 import BeautifulSoup, NavigableString
+import requests
+
+# :Souping Pages:
+print('\n:Souping Pages:')
+# Souping a pages is to parse through all data in the page and create an html tree for it which can be searched.
+# First, create a request to the website
+request = requests.get("https://en.wikipedia.org/wiki/Christopher").content  # note that .content is used here;
+# for reference .content it the data in bytes while .text is the data in unicode
+# Use a context manager with the request and a
+soup = BeautifulSoup(request, 'html.parser')
+soup2 = BeautifulSoup('<html>data</html>', 'html.parser')  # this can also be done with a string
+
+# :Soup Objects:
+print('\n:Soup Objects:')
+# beautifulsoup converts a complex html page into different python objects; the 4 main ones are:
+# Tag, NavigableString, BeautifulSoup, Comments
+
+# ---[TAG]---
+# Tags are used to define types of content; each page of a website is correlated to a tag; there are many attributes
+# but the two most important are the 1) name and the 2) attributes
+
+tag = BeautifulSoup('<b class="boldest">Beautiful_Soup</b>', 'html.parser')  # a soup that is parsed via html can be
+# handled as a tag
+
+print(tag.name)  # tag.name returns the type of tag it is
+tag.name = 'Strong'
+print(tag)  # if the tag type is changed vis tag.name, this is reflected in the html markup (shown when displaying
+# the soup object)
+print(tag.name)
+
+# Anything that is not a tag is an attribute; The tag <b class=example> has an attribute ‘class’ whose value is
+# “boldest”. Attributes can be accessed as a whole via .attrs or individually by accessing keys
+tag2 = BeautifulSoup("<div class='example'></div>", 'html.parser').div  # notice the .div at the end
+print(f'All Tag attributes : {tag2.attrs}')
+print(f"Tag class attribute : {tag2['class']}")
+
+# Tags can be modified as you would a normal iterable (by indexing then setting a value via =)
+tag2['class'] = 'new_class'
+tag2['style'] = 'new_style'
+print(f'Tag2 after changes : {tag2}')
+del tag2['style']  # del is delete (self explanitory)
+print(f'Tag2 after deleting style : {tag2}')
+
+# 'class' (as well as 'rev', 'rel', 'headers', 'accesskey', and 'acceptcharset') can have multiple CSS values; in this
+# case, values are returned as a list
+css_soup = BeautifulSoup('<p class="body bold"></p>', 'html.parser')
+print(f'Multiple class attributes : {css_soup.p["class"]}')
+# Other than those 6 parameters, the values will be returned as a continuous string (not an iterable)
+id_soup = BeautifulSoup('<p id="body, bold"></p>', 'html.parser')
+print(f'Multiple id attributes : {id_soup.p["id"]}. id type : {type(id_soup.p["id"])}')
+print(f'List id attributes : {id_soup.p.get_attribute_list("id")}')  # get_atribute_list() returns the tag as a string
+# regardless of the tag type (separates values by comma)
+
+# ---[NAVIGABLE STRING]---
+# A navigable string shows the contents of a tag; use .string on a tag to access it
+soup = BeautifulSoup("<h2 id='message'>Hello, World!</h2>", 'html.parser')
+print(f'\nNavigable string : {soup.string}. Navigable string type : {type(soup.string)}')
+# You can replace strings but not edit them
+soup.string.replaceWith("Hello, Mom!")
+print(f'New soup : {soup}')
+
+# ---[BEAUTIFUL SOUP]---
+# When souping an object, we get a beautiful soup object (often, but not always, is a tag)
+soup = BeautifulSoup("<h2 id='message'>Hello, Tutorialspoint!</h2>", 'html.parser')
+print(f'Soup type : {type(soup)}')
+print(f'Soup type : {soup.name}')
+
+# ---[COMMENTS]---
+# Comments are a special type of navigable string (pretty much the same as # python comments)
+soup = BeautifulSoup('<p><!-- Everything inside of this soup is a comment --></p>', 'html.parser')
+comment = soup.p.string
+print(f'\nComment datatype : {type(comment)}')
+
+# :Navigating via Tags:
+print('\n:Navigating via Tags:')
+# html documents contain tags, and each tag may contain child tags; Beautiful Soup can be used to iterate or search
+# these tag children
+
+html_doc = '''
+<html><head><title>Tutorials Point</title></head>
+<body>
+<p class="title"><b>The Biggest Online Tutorials Library, It's all Free</b></p>
+<p class="prog">Top 5 most used Programming Languages are:
+<a href="https://www.tutorialspoint.com/java/java_overview.htm" class="prog" id="link1">Java</a>,
+<a href="https://www.tutorialspoint.com/cprogramming/index.htm" class="prog" id="link2">C</a>,
+<a href="https://www.tutorialspoint.com/python/index.htm" class="prog" id="link3">Python</a>,
+<a href="https://www.tutorialspoint.com/javascript/javascript_overview.htm" class="prog" id="link4">JavaScript</a> and
+<a href="https://www.tutorialspoint.com/ruby/index.htm" class="prog" id="link5">C</a>;
+as per online survey.</p>
+<p class="prog">Programming Languages</p>
+'''
+soup = BeautifulSoup(html_doc, 'html.parser')
+
+# ---[BASICS]---
+
+# Some of the below is self explanitory because of the print statements
+print(f'Head tag : {soup.head}. Head tag title : {soup.head.title}.')
+print(f'First bold body tag : {soup.body.b}')  # b tag is bold in html
+print(f'First anchor tag : {soup.a}')  # a is an 'anchor' tag (link to another page); using a tag name as an attribute
+# will give only the first tag of that name
+print(f'All anchor tags : {soup.findAll("a")}')  # returns all tags of a name as an iterable
+
+# ---[CONTENTS, CHILDREN, AND DESCENDANTS]---
+
+head_tag = soup.head
+print(
+    f'\nHead tag children : {head_tag.contents}')  # returns all children of a tag as an iterable (1 child in this case)
+print(f'First head tag child : {head_tag.contents[0]}')  # can be indexed
+
+for child in head_tag.children:  # .children is a generator for every child 1 level below the parent
+    print(f'1 level child : {child}')
+
+for child in head_tag.descendants:  # .descendants willrecursively generate every child below the parent
+    print(f'All level children : {child}')
+# Notice that .children only looks for direct children, while .descendants looks for all tags below the specified
+# parent (and is therefore significantly larger)
+print(f'Length of soup children : {len(list(soup.children))}')
+print(f'Length of soup descendants : {len(list(soup.descendants))}')
+
+print(f'Head tag string : {head_tag.string}')  # if a tag's .string attribute is called and the tag's only child is
+# either 1) a navigable string or 2) has a .string attribute then the child's .string attribute is returned
+print(f'Soup string : {soup.html.string}')  # if neither parameter is filled (or there are multiple children) then
+# None is returned
+print(f'All strings in soup : {[string for string in soup.strings]}')  # .strings is a generator that returns all
+# .string attributes in a tag
+print(f'All content strings in soup : {[string for string in soup.stripped_strings]}')  # .stripped_strings removed
+# whitespace (like '\n' strings)
+
+# ---[PARENTS]---
+
+childtag = soup.title
+print(f'\nTitle parent : {childtag.parent}')  # used to access the parent of a tag
+html_ = soup.html
+print(f'html parent : {html_.parent}')  # html (or any other top level tag)'s parent is the soup object
+print(f'Soup parent : {soup.parent}')  # a soup's parent is given as none
+
+link = soup.a  # returning the first anchor tag
+for parent in link.parents:  # .parents is used to iterate through parent objects
+    if not parent:  # See if the parent is None (for the soup object)
+        print(f'Parent : {parent}')
+    else:
+        print(f'Parent name : {parent.name}')
+
+# ---[PARALLEL MOVEMENT]---
+sibling_soup = BeautifulSoup(
+    "<a><b>Hello, Mom</b><c><strong>Hello, World</strong></b></a>",
+    'html.parser')
+print(f'\nSibling soup prettified : \n{sibling_soup.prettify()}')  # shows the html in a tab separated format; notice
+# that the <b> and <c> tabs are children of the same tag <a>
+print(f'B sibling : {sibling_soup.b.next_sibling}')  # use .next_sibling and .previous_sibling to move sideways on the
+# tree (elements on the same level of the tree)
+print(f'All A soup siblings : {[sib for sib in soup.a.next_siblings]}')  # .next_siblings and .previous_siblings
+# iterates through siblings using a generator
+
+# ---[ELEMENTS]---
+# Elements function similary to siblings, but instead of looking for tags on the same level it looks for the tag that
+# was parsed right after or right before the specified tag.
+last_a_tag = soup.find("a", id="link5")
+print(f'\nLast A tag next element : {last_a_tag.next_element}')
+print(f'Last A tag previous element : {last_a_tag.previous_element}')
+
+# :Searching a Tree:
+print('\n:Searching a Tree:')
+
+markup = BeautifulSoup(
+    '<p>Top Three</p><p><pre>Programming Languages are:</pre></p><p><b>Java, Python, Cplusplus</b></p>', 'html.parser')
+
+# ---[SEARCH PARAMETERS]---
+
+print(f'All p (paragraph) tags : {markup.findAll("p")}')  # returns all <p> tags as an iterable
+print(f'All p (paragraph) tags using regex : {markup.find_all(re.compile("^p"))}')  # note that this will also return
+# 'pre' tags, as regex functions by searching for tags with p in them and pre tags have p in the name
+print(f'All pre (preformatted) and b (bold) tags : {markup.findAll("pre", "b")}')  # you can also pass iterables to
+# return multiple tag types
+print(f'All tags : {markup.findAll(True)}')  # using True will return all tags along with their strings
+print(f'All tag types : {[tag.name for tag in markup.findAll(True)]}')  # only the tag names
+
+# ---[FIND ALL]---
+# Find all looks through a tag's descendants and look
+if 0 == 1:
+    markup.find_all(name, attrs, recursive, string, limit, text, class_,
+                    **kwargs)  # format for findAll() function; any unrecognized
+    # arguments will be searched in a tags attributes. For example, id = 'link2' will look for tags with an id of link2.
+    # If a kwarg is set to true (id=True), it will filter values where id is not None/False. Note that findAll() and
+    # find_all are the same function, the latter to conform to pythonic typecase and the former to avoid deprication
+    # 'limit' is a parameter that defines how many results need to be found before the search is stopped.
+
+# Below is a find all example using the imdb website
+url = "https://www.imdb.com/chart/top/?ref_=nv_mv_250"
+content = requests.get(url)
+soup = BeautifulSoup(content.text, 'html.parser')
+
+print(f'\nTitle of website : {soup.title}')
+print(f'Every heading in the website : {[heading for heading in soup.find_all("h1")]}')
+print(f'Every subheading in the website : {[subheading for subheading in soup.find_all("h3")]}')
+
+# NOTE: find() is the same as find_all() except the limit it 1; it searches until the first result is found (same
+# parameters except no limit parameter for obvious reasons)
+
+# ---[FIND PARENT(S)]---
+# Find parent/find parents do the same thing as find all but instead of looking at children, it looks at the parents
+# of a given tag. The difference is self explanitory.
+
+a_string = soup.find(string='The Godfather')  # searching for all strings containing 'The Godfather'
+print(f'The godfather "a" parents (contains hyperlink) : {a_string.find_parent("a")}')
+if 0 == 1:  # not running these because too many results
+    print(f'The godfather "tr" parents (table rows) : {a_string.find_parents("tr")}')
+    print(f'The godfather "td" parents (tables) : {a_string.find_parents("td")}')
+
+# below are some similar methods
+if 0 == 1:
+    # iterate over all the siblings of the element that come after the current one.
+    find_next_siblings(name, attrs, string, limit, **kwargs)
+    find_next_sibling(name, attrs, string, **kwargs)
+
+    # iterate over all the siblings that come before the current element.
+    find_previous_siblings(name, attrs, string, limit, **kwargs)
+    find_previous_sibling(name, attrs, string, **kwargs)
+
+    # iterate over all the tags and strings that come after the current element.
+    find_all_next(name, attrs, string, limit, **kwargs)
+    find_next(name, attrs, string, **kwargs)
+
+    # iterate over all the tags and strings that come before the current element.
+    find_all_previous(name, attrs, string, limit, **kwargs)
+    find_previous(name, attrs, string, **kwargs)
+
+# :Modifying a Tree:
+print('\nModifying a Tree')
+
+# ---[BASICS]---
+
+soup = BeautifulSoup('<b class="bolder">Very Bold</b>', 'html.parser')
+tag = soup.b
+
+print(f'Old tag : {tag}')
+tag.name = 'Blockquote'  # some example modifications
+tag['class'] = 'Bolder'
+tag['id'] = 1.1
+print(f'New tag (with modifications) : {tag}')
+del tag['class']  # deleting attributes is the same as shown before
+print(f'New tag (without class) : {tag}')
+
+if 0==1: #To save changes to an html document, open a new file and write the string of your soup to it
+    with open('example_new_document.html', 'w') as doc:
+        file.write(str(soup)) # you use the string of the soup so that you write the html code, not the soup object
+        # itself
+
+# ---[APPENDING]---
+
+# append() is used to append elements to a soup
+markup = '<a href="https://www.tutorialspoint.com/index.htm">Python is a good <i>Language</i></a>'
+soup = BeautifulSoup(markup, 'html.parser')
+soup.a.append("I like python")
+print(f'\nSoup contents : {soup.contents}')
+
+# Navigable strings and tags can also be used with append()
+soup = BeautifulSoup('<b></b>', 'html.parser')
+tag = soup.b
+tag.append('Appending with tag')
+nav_string = NavigableString(' Appending with navigable string')
+tag.append(nav_string)
+print(f'Soup with appended items : {soup}')
+print(f'Soup contents : {soup.contents}')
+
+# new_tag() is self explanitory; appends a new tag to the end of a soup
+soup = BeautifulSoup('<b></b>', 'html.parser')
+original_tag = soup.b
+new_tag = soup.new_tag('a', href='https://youtube.com')  # format is soup.new_tag('type', 'information')
+original_tag.append(new_tag)  # append to the old tag to connect them within the soup
+print(f'New soup with youtube appended via new_tag : {original_tag}')
+
+# ---[INSERT AND REPLACE]---
+
+# .insert() can be used on a tag to add an element; format is tag.insert(index, content)
+markup = '<a href="https://www.djangoproject.com/community/">Django Official website <i>Huge Community base</i></a>'
+soup = BeautifulSoup(markup, 'html.parser')
+tag = soup.a
+tag.insert(1, "My favorite framework")
+print(f'\nTag with new contents added : {tag.contents}')
+
+# insert_before() and insert_after() are used to insert a tag/string just before/after something in the parse tree
+soup = BeautifulSoup('<b>Brave</b>', 'html.parser')
+tag = soup.new_tag('i')
+tag.string = 'be'
+soup.b.string.insert_before(tag)
+print(f'Soup after inserting before : {soup}')
+soup.b.i.insert_after(soup.new_string(' Always '))
+print(f'Soup after inserting after : {soup}')
+print(f'New soup contents : {soup.contents}')
+
+# replace_with() does exactly what it sounds like it does
+markup = '<a href="https://www.tutorialspoint.com/index.htm">Complete Python <i>Material</i></a>'
+soup = BeautifulSoup(markup, 'html.parser')
+a_tag = soup.a
+print(f'A tag before replacement : {a_tag}')
+new_tag = soup.new_tag('Official site')
+new_tag.string = 'https://www.python.org/'
+a_tag.i.replace_with(new_tag)
+print(f'A tag after replacement : {a_tag}')
+
+# ---[CLEAR, EXTRACT, AND DECOMPOSE]---
+
+# clear() is used to clear the contents of a tag
+markup = '<a href="https://www.tutorialspoint.com/index.htm">For <i>;technical & Non-technical</i> Contents</a>'
+soup = BeautifulSoup(markup, 'html.parser')
+a_tag = soup.a
+a_tag.clear()
+print(f'\nTag after clearing : {a_tag}. Tag contents after clearing : {a_tag.contents}')
+
+# extract() is used to remove tags or strings from a tree
+soup = BeautifulSoup(markup, 'html.parser')
+a_tag = soup.a
+print(f'A tag before extracting i content : {a_tag}')
+i_tag = soup.i.extract()
+print(f'A tag after extracting i content : {a_tag}')
+
+# decompose() is used to completely delete a tag from a tree
+soup = BeautifulSoup(markup, 'html.parser')
+a_tag = soup.a
+print(f'A tag before decomposing i content : {a_tag}')
+soup.i.decompose()
+print(f'A tag after decomposing i content : {a_tag}')
+
+# IMPORTANT NOTE: extract() only removes the content from the tree, while decompose also deletes the content and makes
+# the content unaccessible.
+
+# :Beautiful Soup Objects:
+print('\n:Beautiful Soup Objects:')
+
+# ---[EQUALITY OPERATORS]---
+
+markup = "<p>Learn Python and <b>Java</b> and advanced <b>Java</b>! from Tutorialspoint</p>"
+soup = BeautifulSoup(markup, "html.parser")
+first_b, second_b = soup.find_all('b')  # two different variables that refer to the same markup
+print(f'Two objects represent to the same markup : {first_b == second_b}')
+print(f'Two variables refer to the same object : {first_b is second_b}')
+
+# ---[COPYING BEAUTIFUL OBJECTS]---
+
+# syntax below is pretty self explanitory
+import copy
+
+p_copy = copy.copy(soup.p)
+print(f'Copy of p objects : {copy}')
+
+# :Parsing a Section of a Document:
+
+from bs4 import SoupStrainer  # used to obly parse a section
+
+a_tags = SoupStrainer('a')  # Soup strainer is a function that takes a paramter 'name' and gives only the tags with the
+# name that is input
+
+# this can then be used with the 'parse_only' parameter in the BeautifulSoup() function
+parse_filter = SoupStrainer(id=["first", "third", "five"])  # only parse tags with id 'first', 'second', 'five'
+soup = BeautifulSoup(example_document, "html.parser", parse_only=parse_filter)
+
+
+def is_short(string):
+    return len(string) < 10
+
+
+short_strings = SoupStrainer(string=is_short)  # functions can also be used to filter
+short_strings_2 = SoupStrainer(string=lambda string: len(string) < 10)  # lambda functions are also usable
+
+# :Amazon Fan Example:
+print(f'\n:Amazon Fan Example:')
+# This information is pretty scattered so I'm going to use an amazon scaper for fans as an example; check Python 
+# Challenges file (this is for me; it's not on github)
+
