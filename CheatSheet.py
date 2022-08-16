@@ -3430,6 +3430,6 @@ short_strings_2 = SoupStrainer(string=lambda string: len(string) < 10)  # lambda
 
 # :Amazon Fan Example:
 print(f'\n:Amazon Fan Example:')
-# This information is pretty scattered so I'm going to use an amazon scaper for fans as an example; check Python 
+# This information is pretty scattered so I'm going to use an amazon scaper for fans as an example; check Python
 # Challenges file (this is for me; it's not on github)
 
